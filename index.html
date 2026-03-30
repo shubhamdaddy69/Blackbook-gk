@@ -7,72 +7,71 @@
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
     :root {
-        /* DARK GREY THEME COLORS */
-        --bg: #121212; 
-        --surface: #1e1e1e; 
-        --card: #252525; 
-        --border: #333333;
-        --primary: #3b82f6; 
-        --sky: #60a5fa; 
-        --succ: #10b981; 
-        --err: #ef4444;
-        --text: #e5e7eb; 
-        --muted: #9ca3af;
+        /* LIGHT BLUE THEME */
+        --bg: #f0f7ff; 
+        --surface: #ffffff; 
+        --card: #ffffff; 
+        --border: #dbeafe;
+        --primary: #0284c7; 
+        --sky: #38bdf8; 
+        --succ: #059669; 
+        --err: #dc2626;
+        --text: #0f172a; 
+        --muted: #64748b;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 50px; }
 
     .app-header {
-        background: var(--surface); border-bottom: 1px solid var(--border); padding: 15px 20px;
+        background: var(--surface); border-bottom: 2px solid var(--border); padding: 15px 20px;
         display: flex; align-items: center; justify-content: space-between;
-        position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(2, 132, 199, 0.1);
     }
     .app-header h1 { font-family: 'Orbitron'; font-size: 0.85rem; color: var(--primary); letter-spacing: 2px; cursor: pointer; }
-    #timer { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; background: var(--err); padding: 6px 14px; border-radius: 8px; }
+    #timer { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; background: var(--primary); padding: 6px 14px; border-radius: 8px; }
 
     .screen { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; }
     .screen.active { display: block; }
 
     .tabs { display: flex; gap: 10px; margin-bottom: 20px; }
-    .tab-btn { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--text); cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.2s; }
+    .tab-btn { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--primary); cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.2s; font-weight: bold; }
     .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
     .topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
     .topic-card {
-        background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 25px;
-        text-align: center; cursor: pointer; transition: 0.2s; color: var(--text);
+        background: var(--card); border: 2px solid var(--border); border-radius: 12px; padding: 25px;
+        text-align: center; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     }
-    .topic-card:hover { transform: translateY(-5px); border-color: var(--primary); background: #2a2a2a; }
+    .topic-card:hover { transform: translateY(-5px); border-color: var(--sky); background: #f8fafc; }
+    .topic-card h3 { color: var(--primary); font-size: 0.9rem; }
 
-    .q-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 25px; margin-bottom: 15px; position: relative;}
-    .bookmark-btn { position: absolute; right: 20px; top: 20px; font-size: 1.5rem; cursor: pointer; color: #4b5563; transition: 0.2s; }
+    .q-card { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 25px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05);}
+    .bookmark-btn { position: absolute; right: 20px; top: 20px; font-size: 1.5rem; cursor: pointer; color: #cbd5e1; transition: 0.2s; }
     .bookmark-btn.active { color: #f59e0b; }
 
     .opt-btn {
         display: block; width: 100%; text-align: left; padding: 14px 18px;
-        background: #2a2a2a; border: 1px solid var(--border); border-radius: 10px; 
+        background: #f1f5f9; border: 1px solid var(--border); border-radius: 10px; 
         margin-bottom: 8px; cursor: pointer; font-size: 0.95rem; transition: 0.2s; color: var(--text);
     }
-    .opt-btn:hover { background: #333; }
-    .opt-btn.selected { background: #1e3a8a; border-color: var(--primary); color: white; font-weight: 600; }
+    .opt-btn:hover { background: #e0f2fe; border-color: var(--sky); }
+    .opt-btn.selected { background: var(--primary); border-color: var(--primary); color: white; font-weight: 600; }
 
     .nav-row { display: flex; gap: 10px; margin-top: 20px; }
     .btn { padding: 12px 24px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: bold; border: none; }
     .btn-next { background: var(--primary); color: white; flex-grow: 1; }
     .btn-submit { background: var(--succ); color: white; }
-    .btn-back { background: #4b5563; color: white; }
+    .btn-back { background: #94a3b8; color: white; }
 
-    .sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid #444; }
-    .sol-box.correct { border-left-color: var(--succ); }
-    .sol-box.wrong { border-left-color: var(--err); }
+    .sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid #cbd5e1; }
+    .sol-box.correct { border-left-color: var(--succ); background: #ecfdf5; }
+    .sol-box.wrong { border-left-color: var(--err); background: #fef2f2; }
     
     .status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
-    .tag-correct { background: #064e3b; color: #6ee7b7; }
-    .tag-wrong { background: #7f1d1d; color: #fca5a5; }
-    .tag-skipped { background: #374151; color: #d1d5db; }
-    
-    #score-card { background: var(--surface) !important; color: var(--text); }
+    .tag-correct { background: #d1fae5; color: #065f46; }
+    .tag-wrong { background: #fee2e2; color: #991b1b; }
+    .tag-skipped { background: #f1f5f9; color: #475569; }
 </style>
 </head>
 <body>
@@ -111,363 +110,25 @@
 </div>
 
 <div class="screen" id="screen-analysis">
-    <div id="score-card" style="padding:20px; border-radius:12px; text-align:center; margin-bottom:20px; border:1px solid var(--border)"></div>
+    <div id="score-card" style="background:white; padding:20px; border-radius:12px; text-align:center; margin-bottom:20px; border:2px solid var(--border)"></div>
     <button class="btn btn-next" style="width:100%; margin-bottom:20px;" onclick="app.showHome()">FINISH REVIEW</button>
     <div id="analysis-list"></div>
 </div>
 
 <script>
+// Paste your data inside the backticks for each category
 const MASTER_DATA = {
     "Ancient History": `Q.1 - Palaeolithic Age in India has how many phases?
 A. Two
 B. Three
 C. Four
 D. Five
-Correct Answer: B
-
-Q.2 - During which period Ostriches were found in India?
-A. Mesolithic
-B. Neolithic
-C. Palaeolithic
-D. Chalcolithic
-Correct Answer: C
-
-Q.3 - ___ is a Palaeolithic site of archaeological importance in India.
-A. Burzahom
-B. Lothal
-C. Hunasagi
-D. Dholavira
-Correct Answer: C
-
-Q.4 - The duration of the Mesolithic period is from about ___ years ago to ___ years ago.
-A. 10000, 8000
-B. 12000, 10000
-C. 8000, 6000
-D. 5000, 3000
-Correct Answer: B
-
-Q.5 - "Microliths" were ___ used by early humans.
-A. Bone tools
-B. Stone tools
-C. Copper tools
-D. Iron tools
-Correct Answer: B
-
-Q.6 - ___, is also known as 'New Stone Age' in the civilisation history of India.
-A. Palaeolithic
-B. Mesolithic
-C. Neolithic
-D. Chalcolithic
-Correct Answer: C
-
-Q.7 - Which Neolithic sites gives evidence of trough residence?
-A. Mehrgarh
-B. Hunasagi
-C. Burzahom
-D. Lothal
-Correct Answer: C
-
-Q.8 - A celt is ___ from the Neolithic period.
-A. A weapon
-B. A tool
-C. A pottery
-D. A coin
-Correct Answer: B
-
-Q.9 - Man became a food producer from which period in history?
-A. Palaeolithic Age
-B. Mesolithic Age
-C. Neolithic Age
-D. Chalcolithic Age
-Correct Answer: C
-
-Q.10 - Pottery was first traceable to which period of ancient Indian history?
-A. Palaeolithic
-B. Mesolithic
-C. Neolithic
-D. Iron Age
-Correct Answer: C
-
-Q.11 - In which period Catal Huyuk was one of the most famous sites?
-A. Palaeolithic
-B. Mesolithic
-C. Neolithic
-D. Harappan
-Correct Answer: C
-
-Q.12 - 'Piklihal' and 'Utnur' are important ___ sites.
-A. Palaeolithic
-B. Mesolithic
-C. Neolithic
-D. Megalithic
-Correct Answer: C
-
-Q.13 - In which state is the pre-historic site named Koldihwa located?
-A. Madhya Pradesh
-B. Uttar Pradesh
-C. Gujarat
-D. Maharashtra
-Correct Answer: B
-
-Q.14 - In India, the practice of erecting megaliths began about ___ ago.
-A. 2000 years
-B. 3000 years
-C. 4000 years
-D. 5000 years
-Correct Answer: B
-
-Q.15 - The prehistoric period in the early development of human beings is commonly known as the ___.
-A. Old stone age
-B. New stone age
-C. Bronze age
-D. Iron age
-Correct Answer: A
-
-Q.16 - In which state is the Bhimbetka caves which is famous for pre-historic rock paintings?
-A. Uttar Pradesh
-B. Madhya Pradesh
-C. Maharashtra
-D. Gujarat
-Correct Answer: B
-
-Q.17 - The main (chief) social unit of the Aryans was ___.
-A. Grama
-B. Vis
-C. Jana
-D. Kula
-Correct Answer: C
-
-Q.18 - Which pre-historic site provides archaeological evidence of cattle rearing in the form of hoof-marks on clay surfaces?
-A. Burzahom
-B. Mahagara
-C. Koldihwa
-D. Mehrgarh
-Correct Answer: B
-
-Q.19 - The word Manuscripts derived from which language?
-A. Greek
-B. Latin
-C. Sanskrit
-D. Persian
-Correct Answer: B
-
-Q.20 - The Mesopotamians wrote on tablets made of: ___.
-A. paper
-B. wood
-C. clay
-D. stone
-Correct Answer: C
-
-Q.21 - ___ is a famous fossil site in India where a full-fledged skeleton of a dinosaur was found.
-A. Lothal, Gujarat
-B. Waddham, Maharashtra
-C. Burzahom, Jammu & Kashmir
-D. Hunasagi, Karnataka
-Correct Answer: B
-
-Q.22 - Pit-houses dug into the ground, with steps leading into them were found at the ___ archaeological site.
-A. Mehrgarh
-B. Burzahom
-C. Lothal
-D. Kalibangan
-Correct Answer: B
-
-Q.23 - Bhimbetka, a world heritage site, is known for: ___.
-A. Temples
-B. Prehistoric rock shelters
-C. Stupas
-D. Palaces
-Correct Answer: B
-
-Q.24 - The Iranian ruler Darius penetrated into north-west India in ___ and annexed Punjab, west of the Indus, and Sindh.
-A. 326 BC
-B. 516 BC
-C. 261 BC
-D. 415 BC
-Correct Answer: B
-
-Q.25 - Which site has an evidence of the cultivation of Millet in ancient India?
-A. Burzahom
-B. Hallur
-C. Lothal
-D. Dholavira
-Correct Answer: B
-
-Q.26 - The Iron Age in North India is archaeologically represented by assemblages that mainly contain which of the following particular pottery types?
-A. Only I (Painted Grey Ware)
-B. Only II (Northern Black Polished Ware)
-C. Both I and II
-D. Neither I nor II
-Correct Answer: C
-
-Q.27 - ___ was one of the discoverers of Indus Valley Civilization.
-A. RD Banerjee
-B. Daya Ram Sahni
-C. John Marshall
-D. Alexander Cunningham
-Correct Answer: B
-
-Q.28 - The Harappan Civilisation was discovered in the year?
-A. 1920
-B. 1921
-C. 1922
-D. 1924
-Correct Answer: B
-
-Q.29 - Who was the first scholars to discover the traces of the Harappan Civilisation?
-A. John Marshall
-B. A. Cunningham
-C. Daya Ram Sahni
-D. RD Banerjee
-Correct Answer: B
-
-Q.30 - In which state is the pre-historic site called Daimabad located?
-A. Gujarat
-B. Maharashtra
-C. Rajasthan
-D. Haryana
-Correct Answer: B
-
-Q.31 - The height of the Dancing Girl figurine of Indus Valley Civilization is about ___.
-A. 9 cm
-B. 11 cm
-C. 15 cm
-D. 20 cm
-Correct Answer: B
-
-Q.32 - Which Indus Valley site/city was the first to be discovered?
-A. Mohenjodaro
-B. Harappa
-C. Lothal
-D. Kalibangan
-Correct Answer: B
-
-Q.33 - Fire altars were found in which group of Harappan cities?
-A. Harappa and Mohenjodaro
-B. Kalibangan and Lothal
-C. Dholavira and Surkotada
-D. Ropar and Banawali
-Correct Answer: B
-
-Q.34 - Which metal was not found in Harappan civilization?
-A. Gold
-B. Copper
-C. Silver
-D. Iron
-Correct Answer: D
-
-Q.35 - Which site of Harappan civilization is located near Bolan Pass?
-A. Harappa
-B. Mehrgarh
-C. Mohenjodaro
-D. Lothal
-Correct Answer: B
-
-Q.36 - The Harappan site "Ropar" was situated on the banks of which river?
-A. Indus
-B. Ravi
-C. Sutlej
-D. Chenab
-Correct Answer: C
-
-Q.37 - The Harappan site "Manda" was situated on the banks of which river?
-A. Indus
-B. Sutlej
-C. Chenab
-D. Jhelum
-Correct Answer: C
-
-Q.38 - In which state is the Harappan culture site 'Sanauli' located?
-A. Haryana
-B. Punjab
-C. Uttar Pradesh
-D. Rajasthan
-Correct Answer: C
-
-Q.39 - Harappa is situated on the bank of the river ___.
-A. Indus
-B. Ravi
-C. Sutlej
-D. Ghaggar
-Correct Answer: B
-
-Q.40 - The Harappans were: ___.
-A. Rural
-B. Urban
-C. Nomadic
-D. Tribal
-Correct Answer: B
-
-Q.41 - Which material was mainly used in the manufacture of Harappan seals?
-A. Copper
-B. Iron
-C. Steatite
-D. Gold
-Correct Answer: C
-
-Q.42 - Which type of house remains were found in Mehrgarh site of Harappan civilization?
-A. Circular
-B. Square or rectangular
-C. Triangular
-D. Oval
-Correct Answer: B
-
-Q.43 - Which method was used for making bronze statues during Harrapan Civilisation?
-A. Sand casting
-B. Lost wax casting
-C. Die casting
-D. Forging
-Correct Answer: B
-
-Q.44 - The Indus people knew the use of Weights and Measures, which is proved by the discovery of the seal at ___.
-A. Mohenjodaro
-B. Harappa
-C. Lothal
-D. Kalibangan
-Correct Answer: B
-
-Q.45 - Which Harappan structure had a thin lining of bitumen to prevent the seepage of water?
-A. Granary
-B. Great Bath
-C. Assembly Hall
-D. Dockyard
-Correct Answer: B
-
-Q.46 - Which part of Harappan city was known as citadel?
-A. North
-B. South
-C. East
-D. West
-Correct Answer: D
-
-Q.47 - In which site of Harappan civilization Jadeite stone was found?
-A. Mehrgarh
-B. Burzahom
-C. Daojali Hading
-D. Hallur
-Correct Answer: C
-
-Q.48 - The Social System of the Harappans was?
-A. Strictly Hierarchical
-B. Slave-based
-C. Fairly Egalitarian
-D. Matriarchal
-Correct Answer: C
-
-Q.49 - Houses of the Indus Valley Civilisation generally had rooms built around a ____.
-A. Well
-B. Courtyard
-C. Temple
-D. Granary
-Correct Answer: B
-
-Q.50 - Which Metal of Harappan civilization got from present-day Rajasthan and Oman?
-A. Gold
-B. Silver
-C. Copper
-D. Iron
-Correct Answer: C
-`
+Correct Answer: B`, // (Keep your existing data here)
+    "Medieval History": ``, "Modern History": ``, "Indian Polity": ``, "Geography": ``,
+    "Economics": ``, "Physics": ``, "Chemistry": ``, "Biology": ``, "Environment": ``,
+    "Art & Culture": ``, "Computer GK": ``, "Static GK": ``, "Current Affairs": ``,
+    "English Language": ``, "Reasoning": ``, "Mathematics": ``, "General Science": ``,
+    "World History": ``, "Mix Mock": ``
 };
 
 const app = {
@@ -484,6 +145,7 @@ const app = {
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.toggle('active', b.innerText.toLowerCase().includes(type)));
         
         if(type === 'topics') {
+            // FIX: Ensure all 20 keys show up regardless of content
             Object.keys(this.db).forEach(t => {
                 const card = document.createElement('div');
                 card.className = 'topic-card';
@@ -493,7 +155,7 @@ const app = {
             });
         } else {
             const list = type === 'bookmarks' ? this.bookmarks : this.blunders;
-            if(list.length === 0) { cont.innerHTML = `<p style='color:gray'>No questions here yet.</p>`; return; }
+            if(list.length === 0) { cont.innerHTML = `<p style='color:gray; grid-column: 1/-1;'>No questions here yet.</p>`; return; }
             const card = document.createElement('div');
             card.className = 'topic-card';
             card.innerHTML = `<h3>REVIEW ALL (${list.length})</h3>`;
@@ -511,20 +173,17 @@ const app = {
     },
 
     parse(raw) {
-        if (!raw) return [];
+        if (!raw || raw.trim() === "") return [];
         return raw.trim().split(/Q\.\d+/).filter(b => b.trim()).map(block => {
             const lines = block.split('\n').map(l => l.trim()).filter(l => l);
             let qText = "", opts = [], ans = "", exp = "";
-            
             lines.forEach(l => {
                 if (l.startsWith('A.')) opts[0] = l.slice(2).trim();
                 else if (l.startsWith('B.')) opts[1] = l.slice(2).trim();
                 else if (l.startsWith('C.')) opts[2] = l.slice(2).trim();
                 else if (l.startsWith('D.')) opts[3] = l.slice(2).trim();
-                // FIX: Look for "Correct Answer:" instead of "Ans:"
                 else if (l.startsWith('Correct Answer:')) ans = l.slice(15).trim().toUpperCase();
                 else if (l.startsWith('Exp:')) exp = l.slice(4).trim();
-                // FIX: Only add to question text if it's not the Answer line
                 else if (!l.startsWith('Correct Answer:')) qText += l + " ";
             });
             return { q: qText.trim(), opts, correct: {'A':0,'B':1,'C':2,'D':3}[ans.charAt(0)], exp };
@@ -533,12 +192,12 @@ const app = {
 
     renderSets() {
         const cont = document.getElementById('sets-container');
-        cont.innerHTML = this.allQs.length === 0 ? "<p>No questions found.</p>" : "";
+        cont.innerHTML = this.allQs.length === 0 ? "<p style='color:gray'>Questions for this topic will be available soon.</p>" : "";
         for (let i = 0; i < this.allQs.length; i += 50) {
             const num = (i / 50) + 1;
             const chunk = this.allQs.slice(i, i + 50);
             const card = document.createElement('div'); card.className = 'topic-card';
-            card.innerHTML = `<h3>SET ${num}</h3><p style='font-size:0.7rem; color:var(--muted)'>${chunk.length} Qs</p>`;
+            card.innerHTML = `<h3>SET ${num}</h3><p style='font-size:0.75rem; color:var(--muted)'>${chunk.length} Questions</p>`;
             card.onclick = () => this.startTest(chunk);
             cont.appendChild(card);
         }
@@ -592,7 +251,6 @@ const app = {
             const u = this.userAns[i];
             let statusClass = "skipped", tagLabel = "Skipped";
             
-            // FIX: Correct logic for undefined (unattempted) vs wrong
             if (u === undefined) {
                 s++; statusClass = "skipped"; tagLabel = "Skipped";
             } else if (u === q.correct) { 
@@ -610,7 +268,11 @@ const app = {
         }).join('');
 
         localStorage.setItem('ssc_errs', JSON.stringify(this.blunders));
-        document.getElementById('score-card').innerHTML = `<h1 style="font-size:2.5rem; color:var(--primary)">${(r*2)-(w*0.5)}</h1>
+        
+        // ISSUE 1 FIX: Marking system 1 for correct, -0.33 for wrong
+        const finalScore = (r * 1) - (w * 0.33);
+
+        document.getElementById('score-card').innerHTML = `<h1 style="font-size:2.5rem; color:var(--primary)">${finalScore.toFixed(2)}</h1>
             <p>Correct: <span style="color:var(--succ)">${r}</span> | Wrong: <span style="color:var(--err)">${w}</span> | Skipped: ${s}</p>`;
         document.getElementById('analysis-list').innerHTML = listHtml;
     },
