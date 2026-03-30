@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SSC MOCK TEST PORTAL</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+    :root {
+        --bg: #f3f4f6;         /* Soft Light Grey */
+        --surface: #ffffff;    /* Pure White */
+        --card: #ffffff;       /* Card Background */
+        --border: #e5e7eb;     /* Subtle Borders */
+        --primary: #2563eb;    /* Royal Blue Accent */
+        --sky: #3b82f6;        /* Highlight Blue */
+        --succ: #10b981;       /* Success Green */
+        --err: #ef4444;        /* Error Red */
+        --text: #1f2937;       /* Dark Slate Text */
+        --muted: #6b7280;      /* Muted Grey Text */
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; }
+
+    /* HEADER */
+    .app-header {
+        background: var(--surface);
+        border-bottom: 1px solid var(--border);
+        padding: 15px 20px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        position: sticky; top: 0; z-index: 100;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+    }
+    .app-header h1 { font-family: 'Orbitron'; font-size: 0.85rem; color: var(--primary); letter-spacing: 2px; }
+    #timer { font-family: 'Orbitron'; font-size: 1.1rem; color: var(--err); background: #fee2e2; padding: 6px 14px; border-radius: 8px; border: 1px solid #fecaca; }
+
+    /* SUBJECT BAR */
+    .subject-bar {
+        background: var(--surface);
+        padding: 10px 20px;
+        display: flex;
+        gap: 8px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border);
+        scrollbar-width: none; /* Firefox */
+    }
+    .subject-bar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+    
+    .sub-pill {
+        padding: 6px 14px;
+        background: #f9fafb;
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        white-space: nowrap;
+        cursor: pointer;
+        font-size: 0.7rem;
+        font-family: 'Orbitron';
+        color: var(--muted);
+        transition: 0.2s;
+    }
+    .sub-pill.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+    /* SCREENS */
+    .screen { display: none; padding: 20px; max-width: 900px; margin: 0 auto; }
+    .screen.active { display: block; }
+
+    /* GRID & CARDS */
+    .section-title { font-family: 'Orbitron'; font-size: 0.75rem; color: var(--primary); letter-spacing: 2px; margin: 20px 0 10px; }
+    .sets-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
+    
+    .set-card {
+        background: var(--card);
+        border: 1px solid var(--border);
+        border-radius: 12px;
+        padding: 18px;
+        text-align: center;
+        cursor: pointer;
+        transition: 0.2s;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+    }
+    .set-card:hover { transform: translateY(-3px); border-color: var(--sky); box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+    .set-card h3 { font-size: 0.9rem; color: var(--text); margin-bottom: 5px; }
+    .set-card p { font-size: 0.7rem; color: var(--muted); }
+
+    /* TEST AREA */
+    .q-card { background: var(--card); border: 1px solid var(--border); border-radius: 14px; padding: 25px; margin-bottom: 15px; }
+    .q-meta { display: flex; justify-content: space-between; margin-bottom: 15px; font-family: 'Orbitron'; font-size: 0.8rem; color: var(--primary); }
+    #q-text { font-size: 1.05rem; font-weight: 700; line-height: 1.6; color: #111827; }
+
+    .opt-btn {
+        display: block; width: 100%; text-align: left; padding: 14px 18px;
+        background: #f9fafb; border: 1px solid var(--border);
+        border-radius: 10px; color: var(--text); font-size: 0.95rem;
+        cursor: pointer; margin-bottom: 8px; transition: 0.2s;
+    }
+    .opt-btn:hover { background: #f3f4f6; border-color: var(--sky); }
+    .opt-btn.selected { background: #dbeafe; border-color: var(--primary); color: var(--primary); font-weight: 600; }
+
+    .nav-row { display: flex; gap: 10px; margin-top: 20px; }
+    .btn { padding: 12px 24px; border-radius: 8px; border: 1px solid var(--border); cursor: pointer; font-family: 'Orbitron'; font-size: 0.75rem; transition: 0.2s; }
+    .btn-next { background: var(--primary); color: white; flex-grow: 1; }
+    .btn-submit { background: var(--succ); color: white; }
+
+    /* ANALYSIS */
+    .sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin-bottom: 12px; }
+    .ans-row { margin-top: 10px; font-size: 0.85rem; border-top: 1px solid var(--border); padding-top: 8px; }
+
+    @media(max-width:600px) { .app-header h1 { font-size: 0.7rem; } }
+</style>
+</head>
+<body>
+
+<div class="app-header">
+    <h1>SSC MOCK PORTAL</h1>
+    <div id="timer" style="display:none;">15:00</div>
+</div>
+
+<div class="subject-bar" id="sub-bar"></div>
+
+<div class="screen active" id="screen-home">
+    <div class="section-title" id="active-sub-name">SELECT A SUBJECT</div>
+    <div class="sets-grid" id="main-sets-container"></div>
+</div>
+
+<div class="screen" id="screen-test">
+    <div class="q-card">
+        <div class="q-meta">
+            <span id="q-count">Q.1/50</span>
+            <span id="q-subject-tag">HISTORY</span>
+        </div>
+        <div id="q-text"></div>
+    </div>
+    <div id="options-area"></div>
+    <div class="nav-row">
+        <button class="btn" onclick="app.prev()">PREV</button>
+        <button class="btn btn-next" onclick="app.next()">NEXT</button>
+        <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
+    </div>
+</div>
+
+<div class="screen" id="screen-analysis">
+    <div class="section-title">PERFORMANCE REPORT</div>
+    <div id="score-card" style="text-align:center; margin-bottom:25px;"></div>
+    <button class="btn btn-next" style="width:100%; margin-bottom:20px;" onclick="app.goHome()">← BACK TO SUBJECTS</button>
+    <div id="analysis-list"></div>
+</div>
+
+<script>
+// =====================================================
+// MASTER DATA FOR 20 SUBJECTS
+// PASTE YOUR RAW STRINGS INSIDE THE BACKTICKS (``)
+// =====================================================
+const MASTER_DATA = {
+    "Ancient History": `Q.1 Question text? A. Opt 1 B. Opt 2 C. Opt 3 D. Opt 4 Ans: A Exp: Explanation here`,
+    "Medieval History": ``,
+    "Modern History": ``,
+    "Indian Polity": ``,
+    "Geography": ``,
+    "Economics": ``,
+    "Physics": ``,
+    "Chemistry": ``,
+    "Biology": ``,
+    "Environment": ``,
+    "Art & Culture": ``,
+    "Computer GK": ``,
+    "Static GK": ``,
+    "Current Affairs": ``,
+    "English Language": ``,
+    "Reasoning": ``,
+    "Mathematics": ``,
+    "General Science": ``,
+    "World History": ``,
+    "Mix Mock": ``
+};
+
+const app = {
+    currentSub: "Ancient History",
+    allQs: [],
+    testQs: [],
+    userAns: {},
+    idx: 0,
+    timer: 900,
+    timerInt: null,
+
+    init() {
+        this.renderSubBar();
+        this.loadSubject(this.currentSub);
+    },
+
+    renderSubBar() {
+        const bar = document.getElementById('sub-bar');
+        Object.keys(MASTER_DATA).forEach(sub => {
+            const pill = document.createElement('div');
+            pill.className = `sub-pill ${sub === this.currentSub ? 'active' : ''}`;
+            pill.innerText = sub.toUpperCase();
+            pill.onclick = () => this.loadSubject(sub);
+            bar.appendChild(pill);
+        });
+    },
+
+    loadSubject(name) {
+        this.currentSub = name;
+        document.querySelectorAll('.sub-pill').forEach(p => p.classList.toggle('active', p.innerText === name.toUpperCase()));
+        document.getElementById('active-sub-name').innerText = name.toUpperCase();
+        this.allQs = this.parse(MASTER_DATA[name] || "");
+        this.renderSets();
+        this.goHome();
+    },
+
+    parse(raw) {
+        if (!raw) return [];
+        return raw.trim().split(/Q\.\d+/).filter(b => b.trim()).map(block => {
+            const lines = block.split('\n').map(l => l.trim()).filter(l => l);
+            let qText = "", opts = [], ans = "", exp = "";
+            lines.forEach(l => {
+                if (l.startsWith('A.')) opts[0] = l.slice(2).trim();
+                else if (l.startsWith('B.')) opts[1] = l.slice(2).trim();
+                else if (l.startsWith('C.')) opts[2] = l.slice(2).trim();
+                else if (l.startsWith('D.')) opts[3] = l.slice(2).trim();
+                else if (l.startsWith('Ans:')) ans = l.slice(4).trim().toUpperCase();
+                else if (l.startsWith('Exp:')) exp = l.slice(4).trim();
+                else qText += l + " ";
+            });
+            return { q: qText.trim(), opts, correct: {'A':0,'B':1,'C':2,'D':3}[ans.charAt(0)], exp };
+        });
+    },
+
+    renderSets() {
+        const cont = document.getElementById('main-sets-container');
+        cont.innerHTML = "";
+        if(this.allQs.length === 0) { cont.innerHTML = "<p style='color:gray; padding:20px;'>No questions yet.</p>"; return; }
+        for (let i = 0; i < this.allQs.length; i += 50) {
+            const num = (i / 50) + 1;
+            const chunk = this.allQs.slice(i, i + 50);
+            const card = document.createElement('div');
+            card.className = 'set-card';
+            card.innerHTML = `<h3>SET ${num}</h3><p>${chunk.length} Questions</p>`;
+            card.onclick = () => this.startTest(chunk);
+            cont.appendChild(card);
+        }
+    },
+
+    startTest(qs) {
+        this.testQs = qs;
+        this.userAns = {};
+        this.idx = 0;
+        this.timer = 900;
+        this.switchScreen('screen-test');
+        document.getElementById('timer').style.display = 'block';
+        document.getElementById('q-subject-tag').innerText = this.currentSub.toUpperCase();
+        this.renderQ();
+        this.startTimer();
+    },
+
+    renderQ() {
+        const q = this.testQs[this.idx];
+        document.getElementById('q-count').innerText = `Q.${this.idx + 1}/${this.testQs.length}`;
+        document.getElementById('q-text').innerText = q.q;
+        document.getElementById('options-area').innerHTML = q.opts.map((o, i) => 
+            `<button class="opt-btn ${this.userAns[this.idx] === i ? 'selected' : ''}" onclick="app.select(${i})">${o}</button>`
+        ).join('');
+    },
+
+    select(i) { this.userAns[this.idx] = i; this.renderQ(); },
+    next() { if(this.idx < this.testQs.length-1) { this.idx++; this.renderQ(); } },
+    prev() { if(this.idx > 0) { this.idx--; this.renderQ(); } },
+
+    startTimer() {
+        clearInterval(this.timerInt);
+        this.timerInt = setInterval(() => {
+            this.timer--;
+            let m = Math.floor(this.timer/60), s = this.timer%60;
+            document.getElementById('timer').innerText = `${m}:${s<10?'0':''}${s}`;
+            if(this.timer <= 0) this.submit();
+        }, 1000);
+    },
+
+    submit() {
+        clearInterval(this.timerInt);
+        this.switchScreen('screen-analysis');
+        document.getElementById('timer').style.display = 'none';
+        let r = 0, w = 0;
+        this.testQs.forEach((q, i) => {
+            if(this.userAns[i] === q.correct) r++;
+            else if(this.userAns[i] !== undefined) w++;
+        });
+        const score = (r * 2) - (w * 0.5);
+        document.getElementById('score-card').innerHTML = `<h1 style="font-size:3rem;">${score}</h1><p style="color:var(--muted)">Right: ${r} | Wrong: ${w}</p>`;
+        document.getElementById('analysis-list').innerHTML = this.testQs.map((q, i) => `
+            <div class="sol-box">
+                <p><b>Q.${i+1}</b> ${q.q}</p>
+                <p style="color:var(--succ); font-weight:bold; margin-top:5px;">Correct: ${q.opts[q.correct]}</p>
+                <div class="ans-row"><small><b>Exp:</b> ${q.exp}</small></div>
+            </div>
+        `).join('');
+    },
+
+    goHome() { this.switchScreen('screen-home'); clearInterval(this.timerInt); document.getElementById('timer').style.display='none'; },
+    switchScreen(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+};
+
+app.init();
+</script>
+</body>
+</html>
