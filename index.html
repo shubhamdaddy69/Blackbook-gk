@@ -133,9 +133,6 @@
 
 <!-- TEST -->
 <div class="screen" id="screen-test">
-    <!-- FIX 1: Question Navigator -->
-    <div id="q-navigator"></div>
-
     <div class="q-card">
         <span class="bookmark-btn" id="q-bookmark" onclick="app.toggleBookmark()">★</span>
         <div id="q-text" style="font-weight:700;"></div>
@@ -143,9 +140,11 @@
     <div id="options-area"></div>
     <div class="nav-row">
         <button class="btn btn-back" onclick="app.prev()">PREV</button>
-        <button class="btn btn-next" onclick="app.next()">NEXT</button>
+        <button class="btn btn-next" style="flex-grow:0; padding:12px 28px;" onclick="app.next()">NEXT</button>
         <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
     </div>
+    <!-- Navigator at bottom -->
+    <div id="q-navigator" style="margin-top:16px;"></div>
 </div>
 
 <!-- ANALYSIS -->
@@ -285,20 +284,15 @@ const app = {
 
     renderQ() {
         const q = this.testQs[this.idx];
-        const answered = this.userAns[this.idx] !== undefined;
-
         document.getElementById('q-text').innerText = `Q.${this.idx + 1}: ${q.q}`;
         document.getElementById('q-bookmark').classList.toggle('active',
             this.bookmarks.some(b => b.q === q.q)
         );
 
-        // FIX 3: Lock options if already answered
         document.getElementById('options-area').innerHTML = q.opts.map((o, i) => {
             const isSelected = this.userAns[this.idx] === i;
-            const lockClass = answered ? 'locked' : 'unlocked';
-            const selClass  = isSelected ? 'selected' : '';
-            const clickHandler = answered ? '' : `onclick="app.select(${i})"`;
-            return `<button class="opt-btn ${lockClass} ${selClass}" ${clickHandler}><b>${String.fromCharCode(65+i)}.</b> ${o}</button>`;
+            const selClass = isSelected ? 'selected' : '';
+            return `<button class="opt-btn unlocked ${selClass}" onclick="app.select(${i})"><b>${String.fromCharCode(65+i)}.</b> ${o}</button>`;
         }).join('');
 
         this.renderNavigator();
@@ -313,10 +307,13 @@ const app = {
         this.renderQ();
     },
 
-    // FIX 3: select() – only fires when not already answered
+    // Click same option again → deselect (leave unattempted). Click different → switch.
     select(i) {
-        if (this.userAns[this.idx] !== undefined) return; // already locked
-        this.userAns[this.idx] = i;
+        if (this.userAns[this.idx] === i) {
+            delete this.userAns[this.idx]; // deselect = unattempted
+        } else {
+            this.userAns[this.idx] = i;
+        }
         this.renderQ();
     },
 
