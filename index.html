@@ -6509,225 +6509,296 @@ const app = {
         const res = this.lastResult;
         if (!res) { alert('No result to export yet.'); return; }
 
-        const pageW = 210, pageH = 297, margin = 12;
+        const pageW = 210, pageH = 297, margin = 13;
         const contentW = pageW - margin * 2;
         let y = 0;
 
-        // ── Font size constants (consistent throughout) ──────────
+        // ─── Consistent font sizes ────────────────────────────────
         const FS = {
-            heading:  11,   // section headings
-            subhead:  8,    // sub-labels
-            body:     7,    // question text
-            opt:      6.5,  // option text
-            tag:      6,    // tag pills / badges
-            note:     6,    // explanation / scoring note
-            footer:   6,    // footer
+            title:   18,
+            sub:      9,
+            meta:     8,
+            scoreNum:28,
+            statNum: 15,
+            statLbl:  7,
+            secHead: 11,
+            badge:    7,
+            qText:    9,
+            opt:      8.5,
+            exp:      7.5,
+            note:     7.5,
+            footer:   6.5,
         };
-        const LINE = {
-            body: 4.2,
-            opt:  3.8,
-            note: 3.6,
+        const LH = { qText: 5.4, opt: 5.1, exp: 4.6, note: 4.4 };
+
+        const checkPage = (needed) => {
+            if (y + needed > pageH - 14) { doc.addPage(); y = 18; }
         };
 
-        const checkPage = (needed = 10) => {
-            if (y + needed > pageH - 12) { doc.addPage(); y = 16; }
-        };
-
-        // ── Page 1 Header ─────────────────────────────────────────
+        // ─── HEADER (page 1 only) ─────────────────────────────────
+        // Deep gradient bands
+        doc.setFillColor(1, 72, 120);
+        doc.rect(0, 0, pageW, 48, 'F');
         doc.setFillColor(2, 132, 199);
-        doc.rect(0, 0, pageW, 42, 'F');
-        doc.setFillColor(1, 90, 140);
-        doc.rect(0, 30, pageW, 12, 'F');
+        doc.rect(0, 6, pageW, 30, 'F');
+        doc.setFillColor(14, 165, 233);
+        doc.rect(0, 8, pageW, 22, 'F');
+        // Decorative right triangle accent
+        doc.setFillColor(1, 72, 120);
+        doc.triangle(pageW - 40, 0, pageW, 0, pageW, 48, 'F');
+        doc.setFillColor(255, 255, 255, 0.15);
 
         doc.setTextColor(255, 255, 255);
-        doc.setFont('helvetica', 'bold').setFontSize(16);
-        doc.text('SSC MOCK TEST PORTAL', pageW / 2, 14, { align: 'center' });
-        doc.setFont('helvetica', 'normal').setFontSize(8);
-        doc.text('OFFICIAL RESULT SHEET', pageW / 2, 21, { align: 'center' });
-        doc.setFontSize(7);
-        doc.text(`Topic: ${res.topic || 'Mixed'}  |  Set: ${this.activeSet ? 'Set ' + this.activeSet : 'Review'}  |  Date: ${res.date}`, pageW / 2, 37, { align: 'center' });
+        doc.setFont('helvetica', 'bold').setFontSize(FS.title);
+        doc.text('SSC MOCK TEST PORTAL', margin, 20);
+        doc.setFont('helvetica', 'normal').setFontSize(FS.sub);
+        doc.setTextColor(186, 230, 253);
+        doc.text('OFFICIAL RESULT SHEET', margin, 28);
 
-        y = 50;
+        // Meta info line
+        doc.setFillColor(1, 50, 90);
+        doc.rect(0, 36, pageW, 12, 'F');
+        doc.setFont('helvetica', 'normal').setFontSize(FS.meta);
+        doc.setTextColor(186, 230, 253);
+        doc.text(
+            `Topic: ${res.topic || 'Mixed'}   |   Set: ${this.activeSet ? 'Set ' + this.activeSet : 'Review'}   |   Date: ${res.date}`,
+            margin, 43.5
+        );
 
-        // ── Score Dashboard ───────────────────────────────────────
+        y = 56;
+
+        // ─── SCORE DASHBOARD ──────────────────────────────────────
+        const dashH = 38;
         doc.setFillColor(240, 249, 255);
         doc.setDrawColor(186, 230, 253);
-        doc.roundedRect(margin, y, contentW, 34, 3, 3, 'FD');
+        doc.setLineWidth(0.5);
+        doc.roundedRect(margin, y, contentW, dashH, 4, 4, 'FD');
 
-        // Big score on left
+        // Left: big score
+        const scoreX = margin + 10;
         doc.setTextColor(2, 132, 199);
-        doc.setFont('helvetica', 'bold').setFontSize(26);
-        doc.text(res.finalScore.toFixed(2), margin + 8, y + 18);
-        doc.setFont('helvetica', 'normal').setFontSize(FS.subhead);
+        doc.setFont('helvetica', 'bold').setFontSize(FS.scoreNum);
+        doc.text(res.finalScore.toFixed(2), scoreX, y + 22);
+        doc.setFont('helvetica', 'normal').setFontSize(FS.note);
         doc.setTextColor(100, 116, 139);
-        doc.text('TOTAL SCORE', margin + 8, y + 25);
+        doc.text('TOTAL SCORE', scoreX, y + 29);
 
-        // Stat boxes
+        // Vertical divider
+        doc.setDrawColor(186, 230, 253);
+        doc.setLineWidth(0.4);
+        doc.line(margin + 48, y + 6, margin + 48, y + dashH - 6);
+
+        // Right: stat boxes
         const stats = [
             { label: 'CORRECT', val: res.r,                 color: [5,150,105],   bg: [209,250,229] },
             { label: 'WRONG',   val: res.w,                 color: [220,38,38],   bg: [254,226,226] },
             { label: 'SKIPPED', val: res.s,                 color: [100,116,139], bg: [241,245,249] },
-            { label: 'TOTAL',   val: res.r + res.w + res.s, color: [37,99,235],   bg: [219,234,254] }
+            { label: 'TOTAL',   val: res.r + res.w + res.s, color: [37,99,235],   bg: [219,234,254] },
         ];
-        const bw = 28, bh = 26, bx = margin + 50, gap = 4;
+        const bw = 34, bh = 28, bx = margin + 54, gap = 4;
         stats.forEach((st, idx) => {
             const x = bx + idx * (bw + gap);
-            doc.setFillColor(...st.bg); doc.setDrawColor(...st.color);
-            doc.roundedRect(x, y + 4, bw, bh, 2, 2, 'FD');
+            doc.setFillColor(...st.bg);
+            doc.setDrawColor(...st.color);
+            doc.setLineWidth(0.5);
+            doc.roundedRect(x, y + 5, bw, bh, 3, 3, 'FD');
             doc.setTextColor(...st.color);
-            doc.setFont('helvetica', 'bold').setFontSize(14);
-            doc.text(String(st.val), x + bw / 2, y + 17, { align: 'center' });
-            doc.setFont('helvetica', 'normal').setFontSize(FS.tag);
-            doc.text(st.label, x + bw / 2, y + 27, { align: 'center' });
+            doc.setFont('helvetica', 'bold').setFontSize(FS.statNum);
+            doc.text(String(st.val), x + bw / 2, y + 19, { align: 'center' });
+            doc.setFont('helvetica', 'bold').setFontSize(FS.statLbl);
+            doc.text(st.label, x + bw / 2, y + 29, { align: 'center' });
         });
 
-        // Accuracy bar
-        y += 40;
-        const accuracy = res.r + res.w + res.s > 0 ? Math.round((res.r / (res.r + res.w + res.s)) * 100) : 0;
-        doc.setTextColor(15, 23, 42);
-        doc.setFont('helvetica', 'bold').setFontSize(FS.subhead);
-        doc.text(`Accuracy: ${accuracy}%`, margin, y + 4);
-        doc.setFillColor(219, 234, 254);
-        doc.roundedRect(margin + 26, y + 1, contentW - 26, 4, 1.5, 1.5, 'F');
-        const fillW = ((contentW - 26) * accuracy) / 100;
+        y += dashH + 6;
+
+        // ─── ACCURACY BAR ─────────────────────────────────────────
+        const accuracy = res.r + res.w + res.s > 0
+            ? Math.round((res.r / (res.r + res.w + res.s)) * 100) : 0;
         const barColor = accuracy >= 70 ? [5,150,105] : accuracy >= 40 ? [245,158,11] : [220,38,38];
-        doc.setFillColor(...barColor);
-        if (fillW > 0) doc.roundedRect(margin + 26, y + 1, fillW, 4, 1.5, 1.5, 'F');
+
+        doc.setFont('helvetica', 'bold').setFontSize(FS.note);
+        doc.setTextColor(15, 23, 42);
+        doc.text(`Accuracy: ${accuracy}%`, margin, y + 4);
+        // Track
+        doc.setFillColor(219, 234, 254);
+        doc.roundedRect(margin + 30, y + 0.5, contentW - 30, 5, 2, 2, 'F');
+        // Fill
+        const fillW = ((contentW - 30) * accuracy) / 100;
+        if (fillW > 0) {
+            doc.setFillColor(...barColor);
+            doc.roundedRect(margin + 30, y + 0.5, fillW, 5, 2, 2, 'F');
+        }
+        // Percent label on bar
+        doc.setFont('helvetica', 'bold').setFontSize(6).setTextColor(255,255,255);
+        if (fillW > 12) doc.text(`${accuracy}%`, margin + 30 + fillW - 6, y + 4.5);
 
         y += 10;
+
+        // Scoring note
         doc.setFont('helvetica', 'italic').setFontSize(FS.note).setTextColor(100, 116, 139);
-        doc.text('Scoring: +1 correct, -0.33 wrong, 0 skipped', margin, y);
+        doc.text('Scoring: +1 per correct answer  |  -0.33 per wrong answer  |  0 for skipped', margin, y);
 
-        y += 7;
-        doc.setDrawColor(186, 230, 253); doc.setLineWidth(0.4);
+        y += 8;
+
+        // Section divider + heading
+        doc.setDrawColor(186, 230, 253);
+        doc.setLineWidth(0.5);
         doc.line(margin, y, pageW - margin, y);
-        y += 5;
-
-        // ── Section heading ───────────────────────────────────────
-        doc.setFont('helvetica', 'bold').setFontSize(FS.heading).setTextColor(2, 132, 199);
-        doc.text('DETAILED QUESTION ANALYSIS', margin, y);
         y += 6;
+        doc.setFont('helvetica', 'bold').setFontSize(FS.secHead).setTextColor(2, 132, 199);
+        doc.text('DETAILED QUESTION ANALYSIS', margin, y);
+        y += 7;
 
-        // ── Questions (compact, 25 per page target) ───────────────
+        // ─── QUESTIONS ────────────────────────────────────────────
         res.rows.forEach(({ q, i, u, statusClass, tagLabel }) => {
-            const textW = contentW - 14;
+            const innerW = contentW - 16;
 
-            // Pre-measure all text at target font sizes
-            doc.setFontSize(FS.body);
-            const qLines   = doc.splitTextToSize(`Q.${i+1}: ${q.q}`, textW);
+            // Pre-measure heights
+            doc.setFont('helvetica', 'bold').setFontSize(FS.qText);
+            const qLines = doc.splitTextToSize(q.q, innerW);
+
             doc.setFontSize(FS.opt);
-            const optLinesCounts = q.opts.map((opt, oi) => {
-                const sfx = oi === q.correct
-                    ? (u !== undefined && oi === u ? ' [Correct+Yours]' : ' [Correct]')
-                    : (u !== undefined && oi === u ? ' [Your Ans]' : '');
-                return doc.splitTextToSize(`${String.fromCharCode(65+oi)}. ${opt}${sfx}`, textW - 4).length;
+            let allOptLines = 0;
+            q.opts.forEach((opt, oi) => {
+                const label = String.fromCharCode(65 + oi);
+                allOptLines += doc.splitTextToSize(`${label}. ${opt}`, innerW - 2).length;
             });
-            const totalOptLines = optLinesCounts.reduce((a,b) => a+b, 0);
-            doc.setFontSize(FS.note);
-            const expLines = q.exp ? doc.splitTextToSize(q.exp, textW - 4).length : 0;
 
-            // Height: top padding + q-row + opts + exp + bottom padding
+            doc.setFontSize(FS.exp);
+            const expLinesArr = q.exp ? doc.splitTextToSize(q.exp, innerW - 2) : [];
+
             const estimatedH =
-                5 +
-                (qLines.length * LINE.body) +
-                2 +
-                (totalOptLines * LINE.opt) +
-                (expLines > 0 ? 2 + expLines * LINE.note : 0) +
-                4;
+                8 +                                     // top pad + header row
+                (qLines.length * LH.qText) +
+                3 +                                     // gap before options
+                (allOptLines * LH.opt) +
+                (expLinesArr.length > 0 ? 4 + expLinesArr.length * LH.exp : 0) +
+                6;                                      // bottom pad
 
             checkPage(estimatedH);
 
-            const bgColor     = statusClass === 'correct' ? [240,253,244] : statusClass === 'wrong' ? [254,242,242] : [248,250,252];
+            // Colors by status
+            const bgColor     = statusClass === 'correct' ? [245,255,250] : statusClass === 'wrong' ? [255,245,245] : [248,250,252];
             const borderColor = statusClass === 'correct' ? [5,150,105]   : statusClass === 'wrong' ? [220,38,38]   : [148,163,184];
-            const tagColor    = statusClass === 'correct' ? [5,150,105]   : statusClass === 'wrong' ? [220,38,38]   : [100,116,139];
+            const tagBg       = statusClass === 'correct' ? [209,250,229] : statusClass === 'wrong' ? [254,226,226] : [241,245,249];
+            const tagTxt      = statusClass === 'correct' ? [5,150,105]   : statusClass === 'wrong' ? [185,28,28]   : [71,85,105];
 
             const boxTop = y;
+            // Card shadow effect (slightly offset darker bg)
+            doc.setFillColor(200, 210, 220);
+            doc.roundedRect(margin + 0.6, boxTop + 0.8, contentW, estimatedH, 3, 3, 'F');
+            // Card bg
+            doc.setFillColor(...bgColor);
+            doc.setDrawColor(...borderColor);
+            doc.setLineWidth(0.4);
+            doc.roundedRect(margin, boxTop, contentW, estimatedH, 3, 3, 'FD');
             // Left accent bar
             doc.setFillColor(...borderColor);
-            doc.rect(margin, boxTop, 2.5, estimatedH, 'F');
-            // Box bg
-            doc.setFillColor(...bgColor);
-            doc.rect(margin + 2.5, boxTop, contentW - 2.5, estimatedH, 'F');
-            // Border
-            doc.setDrawColor(...borderColor); doc.setLineWidth(0.2);
-            doc.rect(margin + 2.5, boxTop, contentW - 2.5, estimatedH);
+            doc.roundedRect(margin, boxTop, 3.5, estimatedH, 3, 3, 'F');
+            doc.rect(margin + 1.5, boxTop, 2, estimatedH, 'F'); // make left side flat
 
-            let qy = boxTop + 4;
+            let qy = boxTop + 6;
 
-            // Tag pill
-            const tagBgColor = statusClass === 'correct' ? [209,250,229] : statusClass === 'wrong' ? [254,226,226] : [241,245,249];
-            doc.setFillColor(...tagBgColor);
-            doc.roundedRect(margin + 5, qy - 2.5, 18, 4.5, 1, 1, 'F');
-            doc.setFont('helvetica', 'bold').setFontSize(FS.tag).setTextColor(...tagColor);
-            doc.text(tagLabel.toUpperCase(), margin + 14, qy + 1.2, { align: 'center' });
-
+            // ── Header row: Q badge (left) + status tag (RIGHT) ───
             // Q number badge
             doc.setFillColor(2, 132, 199);
-            doc.roundedRect(margin + 25, qy - 2.5, 10, 4.5, 1, 1, 'F');
-            doc.setTextColor(255,255,255).setFontSize(FS.tag);
-            doc.text(`Q.${i+1}`, margin + 30, qy + 1.2, { align: 'center' });
+            doc.roundedRect(margin + 7, qy - 3.5, 14, 6, 2, 2, 'F');
+            doc.setFont('helvetica', 'bold').setFontSize(FS.badge).setTextColor(255, 255, 255);
+            doc.text(`Q. ${i + 1}`, margin + 14, qy + 0.8, { align: 'center' });
 
+            // Status tag on RIGHT side
+            const tagW = 22, tagX = margin + contentW - tagW - 3;
+            doc.setFillColor(...tagBg);
+            doc.setDrawColor(...borderColor);
+            doc.setLineWidth(0.3);
+            doc.roundedRect(tagX, qy - 3.5, tagW, 6, 2, 2, 'FD');
+            doc.setFont('helvetica', 'bold').setFontSize(FS.badge).setTextColor(...tagTxt);
+            doc.text(tagLabel.toUpperCase(), tagX + tagW / 2, qy + 0.8, { align: 'center' });
+
+            qy += 5;
+
+            // ── Question text ──────────────────────────────────────
+            doc.setFont('helvetica', 'bold').setFontSize(FS.qText).setTextColor(15, 23, 42);
+            qLines.forEach(line => { doc.text(line, margin + 8, qy); qy += LH.qText; });
             qy += 3;
 
-            // Question text
-            doc.setFont('helvetica', 'bold').setFontSize(FS.body).setTextColor(15, 23, 42);
-            qLines.forEach(line => { doc.text(line, margin + 7, qy); qy += LINE.body; });
-            qy += 1.5;
-
-            // Options — only show correct & user-selected (compact)
+            // ── All 4 options ─────────────────────────────────────
             q.opts.forEach((opt, oi) => {
                 const isCorrect = oi === q.correct;
                 const isUser    = u !== undefined && oi === u;
-                // Skip neutral options to save space
-                if (!isCorrect && !isUser) return;
+                const label     = String.fromCharCode(65 + oi);
 
-                const label = String.fromCharCode(65 + oi);
-                let optTextColor = [80, 96, 112], optStyle = 'normal', suffix = '';
-                let optBg = null;
+                let optBg = null, textColor = [60, 75, 95], fontStyle = 'normal';
+
                 if (isCorrect && isUser) {
-                    optBg = [209,250,229]; optTextColor = [5,150,105]; optStyle = 'bold';
-                    suffix = ' [Correct - Your Answer]';
+                    optBg = [209, 250, 229]; textColor = [4, 120, 87]; fontStyle = 'bold';
                 } else if (isCorrect) {
-                    optBg = [209,250,229]; optTextColor = [5,150,105]; optStyle = 'bold';
-                    suffix = ' [Correct Answer]';
+                    optBg = [220, 252, 231]; textColor = [4, 120, 87]; fontStyle = 'bold';
                 } else if (isUser) {
-                    optBg = [254,226,226]; optTextColor = [185,28,28]; optStyle = 'bold';
-                    suffix = ' [Your Answer]';
+                    optBg = [254, 226, 226]; textColor = [185, 28, 28]; fontStyle = 'bold';
                 }
 
-                const optText  = `${label}. ${opt}${suffix}`;
-                doc.setFontSize(FS.opt);
-                const oLines   = doc.splitTextToSize(optText, textW - 4);
-                const optH     = oLines.length * LINE.opt + 2;
+                doc.setFont('helvetica', fontStyle).setFontSize(FS.opt);
+                const oLines = doc.splitTextToSize(`${label}. ${opt}`, innerW - 6);
+                const rowH   = oLines.length * LH.opt + 3;
 
                 if (optBg) {
                     doc.setFillColor(...optBg);
-                    doc.roundedRect(margin + 7, qy - 2, contentW - 11, optH, 1, 1, 'F');
+                    doc.setDrawColor(...(isUser && !isCorrect ? [220,38,38] : [5,150,105]));
+                    doc.setLineWidth(0.3);
+                    doc.roundedRect(margin + 8, qy - 2.5, contentW - 14, rowH, 2, 2, 'FD');
+                } else {
+                    // Subtle zebra tint
+                    doc.setFillColor(oi % 2 === 0 ? 250 : 245, oi % 2 === 0 ? 250 : 249, oi % 2 === 0 ? 252 : 252);
+                    doc.roundedRect(margin + 8, qy - 2.5, contentW - 14, rowH, 2, 2, 'F');
                 }
-                doc.setFont('helvetica', optStyle).setFontSize(FS.opt).setTextColor(...optTextColor);
-                oLines.forEach(line => { doc.text(line, margin + 9, qy); qy += LINE.opt; });
-                qy += 1;
+
+                // Marker icon at right end of highlighted rows
+                if (isCorrect && isUser) {
+                    doc.setFont('helvetica', 'bold').setFontSize(7).setTextColor(4, 120, 87);
+                    doc.text('[Correct + Yours]', margin + contentW - 5, qy, { align: 'right' });
+                } else if (isCorrect) {
+                    doc.setFont('helvetica', 'bold').setFontSize(7).setTextColor(4, 120, 87);
+                    doc.text('[Correct Ans]', margin + contentW - 5, qy, { align: 'right' });
+                } else if (isUser) {
+                    doc.setFont('helvetica', 'bold').setFontSize(7).setTextColor(185, 28, 28);
+                    doc.text('[Your Ans]', margin + contentW - 5, qy, { align: 'right' });
+                }
+
+                doc.setFont('helvetica', fontStyle).setFontSize(FS.opt).setTextColor(...textColor);
+                oLines.forEach(line => { doc.text(line, margin + 10, qy); qy += LH.opt; });
+                qy += 1.5;
             });
 
-            // Explanation
-            if (q.exp) {
+            // ── Explanation ────────────────────────────────────────
+            if (expLinesArr.length > 0) {
                 qy += 1;
-                doc.setFont('helvetica', 'italic').setFontSize(FS.note).setTextColor(100, 116, 139);
-                const expTextLines = doc.splitTextToSize('Exp: ' + q.exp, textW - 4);
-                expTextLines.forEach(line => { doc.text(line, margin + 7, qy); qy += LINE.note; });
+                // Exp background strip
+                doc.setFillColor(255, 251, 235);
+                doc.setDrawColor(253, 230, 138);
+                doc.setLineWidth(0.3);
+                const expH = expLinesArr.length * LH.exp + 4;
+                doc.roundedRect(margin + 8, qy - 2.5, contentW - 14, expH, 2, 2, 'FD');
+                doc.setFont('helvetica', 'bold').setFontSize(FS.exp).setTextColor(146, 64, 14);
+                doc.text('Explanation:', margin + 10, qy);
+                qy += LH.exp;
+                doc.setFont('helvetica', 'normal').setFontSize(FS.exp).setTextColor(92, 44, 0);
+                expLinesArr.forEach(line => { doc.text(line, margin + 10, qy); qy += LH.exp; });
             }
 
-            y = boxTop + estimatedH + 2;
+            y = boxTop + estimatedH + 3.5;
         });
 
-        // ── Footer on every page ──────────────────────────────────
+        // ─── FOOTER on every page ──────────────────────────────────
         const totalPages = doc.getNumberOfPages();
         for (let p = 1; p <= totalPages; p++) {
             doc.setPage(p);
-            doc.setFillColor(240, 249, 255);
-            doc.rect(0, pageH - 9, pageW, 9, 'F');
-            doc.setFont('helvetica', 'normal').setFontSize(FS.footer).setTextColor(100, 116, 139);
-            doc.text('SSC Mock Test Portal', margin, pageH - 3.5);
+            doc.setFillColor(1, 72, 120);
+            doc.rect(0, pageH - 10, pageW, 10, 'F');
+            doc.setFillColor(2, 132, 199);
+            doc.rect(0, pageH - 10, pageW, 2, 'F');
+            doc.setFont('helvetica', 'normal').setFontSize(FS.footer).setTextColor(186, 230, 253);
+            doc.text('SSC Mock Test Portal  |  Official Result Sheet', margin, pageH - 3.5);
             doc.text(`Page ${p} of ${totalPages}`, pageW - margin, pageH - 3.5, { align: 'right' });
         }
 
