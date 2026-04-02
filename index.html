@@ -135,6 +135,10 @@
 
 <!-- TEST -->
 <div class="screen" id="screen-test">
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
+        <button class="btn" style="background:#e0f2fe; color:#0284c7; border:1.5px solid #bae6fd; font-size:0.7rem; padding:8px 16px;" onclick="app.exitToHome()">&#127968; HOME</button>
+        <button class="btn" style="background:#f1f5f9; color:#475569; border:1.5px solid #cbd5e1; font-size:0.7rem; padding:8px 16px;" onclick="app.exitToSets()">&#8592; SETS</button>
+    </div>
     <div class="q-card">
         <div id="q-text" style="font-weight:700;"></div>
     </div>
@@ -142,7 +146,7 @@
     <div class="nav-row">
         <button class="btn btn-back" onclick="app.prev()">PREV</button>
         <button class="btn btn-next" style="flex-grow:0; padding:12px 28px;" onclick="app.next()">NEXT</button>
-        <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">★ SAVE</button>
+        <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">&#9733; SAVE</button>
         <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
     </div>
     <!-- Navigator at bottom -->
@@ -6248,7 +6252,7 @@ Correct Answer: B
 const app = {
     db: MASTER_DATA,
     activeTopic: "", activeSet: null, allQs: [], testQs: [], userAns: {}, idx: 0,
-    timer: 900, timerInt: null,
+    timer: 1200, timerInt: null,
     bookmarks: JSON.parse(localStorage.getItem('ssc_favs') || '[]'),
     blunders: JSON.parse(localStorage.getItem('ssc_errs') || '[]'),
     // FIX 2: store last result for PDF
@@ -6347,7 +6351,7 @@ const app = {
     },
 
     startTest(qs, topic, setNum) {
-        this.testQs = qs; this.userAns = {}; this.idx = 0; this.timer = 900;
+        this.testQs = qs; this.userAns = {}; this.idx = 0; this.timer = 1200;
         this.activeSet = setNum || null;
         this.activeTopic = topic || this.activeTopic;
         this.switchScreen('screen-test');
@@ -6702,6 +6706,20 @@ const app = {
         }
 
         doc.save(`SSC_Result_${(res.topic || 'Mock').replace(/\s+/g, '_')}_Set${this.activeSet || ''}_${Date.now()}.pdf`);
+    },
+
+    exitToHome() {
+        if (confirm('Quit the test and go to Home? Your progress will be lost.')) {
+            this.showHome();
+        }
+    },
+
+    exitToSets() {
+        if (confirm('Quit the test and go back to Sets? Your progress will be lost.')) {
+            clearInterval(this.timerInt);
+            document.getElementById('timer').style.display = 'none';
+            this.switchScreen('screen-sets');
+        }
     },
 
     showHome() {
