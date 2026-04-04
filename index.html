@@ -9000,11 +9000,13 @@ const app = {
                 let qCount;
                 if (t === 'Mix Mock') {
                     qCount = Object.keys(this.db).filter(k => k !== 'Mix Mock').reduce((sum, k) => sum + this.parse(this.db[k] || '').length, 0);
+                    const topicCount = Object.keys(this.db).filter(k => k !== 'Mix Mock' && this.parse(this.db[k] || '').length > 0).length;
+                    card.innerHTML = `<span class="card-icon">🎯</span><h3>${t.toUpperCase()}</h3><p class="card-meta">${topicCount} Topics · ${qCount} Questions</p>`;
                 } else {
                     qCount = this.parse(this.db[t] || '').length;
+                    const sets = Math.ceil(qCount / 50);
+                    card.innerHTML = `<span class="card-icon">${icon}</span><h3>${t.toUpperCase()}</h3><p class="card-meta">${qCount} Questions · ${sets} Set${sets !== 1 ? 's' : ''}</p>`;
                 }
-                const sets = Math.ceil(qCount / 50);
-                card.innerHTML = `<span class="card-icon">${icon}</span><h3>${t.toUpperCase()}</h3><p class="card-meta">${qCount} Questions · ${sets} Set${sets !== 1 ? 's' : ''}</p>`;
                 card.onclick = () => this.loadTopic(t);
                 cont.appendChild(card);
             });
@@ -9038,22 +9040,93 @@ const app = {
         }
     },
 
+    seededShuffle(arr, seed) {
+        // Simple seeded LCG-based shuffle (Knuth shuffle with deterministic RNG)
+        let s = seed;
+        function rand() {
+            s = (s * 1664525 + 1013904223) & 0xffffffff;
+            return (s >>> 0) / 0xffffffff;
+        }
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+            const j = Math.floor(rand() * (i + 1));
+            [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+    },
+
+    getMixMockSeeds() {
+        const SEED_KEY = 'ssc_mixmock_seeds_v1';
+        let seeds = JSON.parse(localStorage.getItem(SEED_KEY) || 'null');
+        if (!seeds) {
+            seeds = {};
+            const topics = Object.keys(this.db).filter(k => k !== 'Mix Mock');
+            topics.forEach(t => {
+                seeds[t] = Math.floor(Math.random() * 2147483647) + 1;
+            });
+            localStorage.setItem(SEED_KEY, JSON.stringify(seeds));
+        }
+        return seeds;
+    },
+
     loadTopic(topic) {
         this.activeTopic = topic;
         if (topic === 'Mix Mock') {
-            let combined = [];
-            Object.keys(this.db).forEach(t => {
-                if (t !== 'Mix Mock') {
-                    const qs = this.parse(this.db[t] || "");
-                    qs.forEach(q => { q._topic = t; });
-                    combined = combined.concat(qs);
-                }
+            const seeds = this.getMixMockSeeds();
+            const mixTopics = Object.keys(this.db).filter(k => k !== 'Mix Mock');
+            const cont = document.getElementById('sets-container');
+            document.getElementById('active-topic-title').innerText = 'MIX MOCK';
+            cont.innerHTML = '';
+
+            const mixIcons = {
+                'Ancient History':'🏛️','Medieval History':'⚔️','Modern History':'📜',
+                'Indian Polity':'⚖️','Geography':'🌍','Economics':'📈',
+                'Physics':'⚡','Chemistry':'🧪','Biology':'🧬','Environment':'🌿',
+                'Art & Culture':'🎨','Computer GK':'💻','Static GK':'📌',
+                'Current Affairs':'📰','English Language':'📝','Reasoning':'🧩',
+                'Mathematics':'🔢','General Science':'🔬','World History':'🌐'
+            };
+            const cardColors = [
+                ['#dbeafe','#1d4ed8','#bfdbfe'],['#ede9fe','#6d28d9','#ddd6fe'],
+                ['#d1fae5','#065f46','#a7f3d0'],['#fef3c7','#92400e','#fde68a'],
+                ['#fee2e2','#991b1b','#fecaca'],['#e0f2fe','#0369a1','#bae6fd'],
+                ['#fce7f3','#9d174d','#fbcfe8'],['#f0fdf4','#166534','#bbf7d0'],
+                ['#fff7ed','#9a3412','#fed7aa'],['#f0f9ff','#075985','#bae6fd'],
+                ['#fdf4ff','#7e22ce','#e9d5ff'],['#ecfdf5','#064e3b','#6ee7b7'],
+                ['#fffbeb','#78350f','#fde68a'],['#fef2f2','#7f1d1d','#fecaca'],
+                ['#f0fdfa','#134e4a','#99f6e4'],['#fafaf9','#1c1917','#d6d3d1'],
+                ['#f7fee7','#3f6212','#d9f99d'],['#fff1f2','#9f1239','#fda4af'],
+                ['#eff6ff','#1e3a8a','#93c5fd']
+            ];
+
+            mixTopics.forEach((t, idx) => {
+                const qs = this.parse(this.db[t] || '');
+                if (qs.length === 0) return;
+                const shuffled = this.seededShuffle(qs, seeds[t]);
+                shuffled.forEach(q => { q._topic = t; });
+
+                const [bg, text, accent] = cardColors[idx % cardColors.length];
+                const icon = mixIcons[t] || '📚';
+                const sets = Math.ceil(shuffled.length / 50);
+                const card = document.createElement('div');
+                card.className = 'topic-card set-card';
+                card.style.cssText = `background:linear-gradient(145deg,#ffffff,${bg}); border-color:${accent};`;
+                card.innerHTML = `
+                    <span style="font-size:2rem; display:block; margin-bottom:8px;">${icon}</span>
+                    <h3 style="color:${text}; font-size:0.9rem;">${t.toUpperCase()}</h3>
+                    <p class="card-meta">${shuffled.length} Questions · ${sets} Set${sets !== 1 ? 's' : ''}</p>
+                    <div style="margin-top:12px;background:${accent};border-radius:6px;padding:5px 10px;display:inline-block;">
+                        <span style="font-size:0.65rem;font-weight:700;color:${text};font-family:'Orbitron';">START ▶</span>
+                    </div>`;
+                card.onclick = () => {
+                    this.allQs = shuffled;
+                    this.activeTopic = t + ' (Mix Mock)';
+                    this.renderSets();
+                };
+                cont.appendChild(card);
             });
-            for (let i = combined.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [combined[i], combined[j]] = [combined[j], combined[i]];
-            }
-            this.allQs = combined;
+            this.switchScreen('screen-sets');
+            return;
         } else {
             this.allQs = this.parse(this.db[topic] || "");
         }
