@@ -8969,11 +8969,21 @@ const app = {
     db: MASTER_DATA,
     activeTopic: "", activeSet: null, allQs: [], testQs: [], userAns: {}, idx: 0,
     timer: 1200, timerInt: null,
-    bookmarks: JSON.parse(localStorage.getItem('ssc_favs') || '[]'),
-    blunders: JSON.parse(localStorage.getItem('ssc_errs') || '[]'),
+    bookmarks: [],
+    blunders: [],
     lastResult: null,
 
-    init() { this.filterHome('topics'); },
+    init() {
+        const RESET_KEY = 'ssc_reset_v1';
+        if (!localStorage.getItem(RESET_KEY)) {
+            localStorage.removeItem('ssc_favs');
+            localStorage.removeItem('ssc_errs');
+            localStorage.setItem(RESET_KEY, '1');
+        }
+        this.bookmarks = JSON.parse(localStorage.getItem('ssc_favs') || '[]');
+        this.blunders = JSON.parse(localStorage.getItem('ssc_errs') || '[]');
+        this.filterHome('topics');
+    },
 
     filterHome(type) {
         const cont = document.getElementById('home-container');
@@ -9031,7 +9041,23 @@ const app = {
 
     loadTopic(topic) {
         this.activeTopic = topic;
-        this.allQs = this.parse(this.db[topic] || "");
+        if (topic === 'Mix Mock') {
+            let combined = [];
+            Object.keys(this.db).forEach(t => {
+                if (t !== 'Mix Mock') {
+                    const qs = this.parse(this.db[t] || "");
+                    qs.forEach(q => { q._topic = t; });
+                    combined = combined.concat(qs);
+                }
+            });
+            for (let i = combined.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [combined[i], combined[j]] = [combined[j], combined[i]];
+            }
+            this.allQs = combined;
+        } else {
+            this.allQs = this.parse(this.db[topic] || "");
+        }
         document.getElementById('active-topic-title').innerText = topic.toUpperCase();
         this.renderSets();
         this.switchScreen('screen-sets');
