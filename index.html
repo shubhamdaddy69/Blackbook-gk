@@ -189,7 +189,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 <div class="screen" id="screen-test">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
         <button class="btn" style="background:#e0f2fe; color:#0284c7; border:1.5px solid #bae6fd; font-size:0.7rem; padding:8px 16px;" onclick="app.exitToHome()">&#127968; HOME</button>
-        <button class="btn" style="background:#4285f4; color:#fff; border:none; font-size:0.7rem; padding:8px 16px;" onclick="app.openGemini()">✨ GEMINI AI</button>
+        <button class="btn" style="background:#c96442; color:#fff; border:none; font-size:0.7rem; padding:8px 16px;" onclick="app.openGemini()">✦ ASK CLAUDE</button>
         <div id="attempt-counter" style="margin-left:auto; display:flex; gap:8px; align-items:center;">
             <span id="counter-attempted" style="background:#d1fae5; color:#065f46; border:1.5px solid #6ee7b7; border-radius:8px; padding:6px 12px; font-size:0.72rem; font-weight:700; font-family:'Orbitron';">✓ 0</span>
             <span id="counter-unattempted" style="background:#fee2e2; color:#991b1b; border:1.5px solid #fca5a5; border-radius:8px; padding:6px 12px; font-size:0.72rem; font-weight:700; font-family:'Orbitron';">✗ 0</span>
@@ -32479,32 +32479,9 @@ const app = {
         if (!q) return;
         const optLetters = ['A', 'B', 'C', 'D'];
         const optsText = q.opts.map((o, i) => `${optLetters[i]}. ${o}`).join('\n');
-        const text = `Q. ${q.q}\n${optsText}\n\nPlease explain the correct answer in detail.`;
-        // Copy to clipboard first, then open Gemini
-        if (navigator.clipboard && navigator.clipboard.writeText) {
-            navigator.clipboard.writeText(text).then(() => {
-                alert('✅ Question copied to clipboard!\n\nGemini is opening now — just paste (Ctrl+V or long press) and send.');
-                window.open('https://gemini.google.com/app', '_blank');
-            }).catch(() => {
-                // Fallback for clipboard failure
-                this._geminiCopyFallback(text);
-            });
-        } else {
-            this._geminiCopyFallback(text);
-        }
-    },
-
-    _geminiCopyFallback(text) {
-        const ta = document.createElement('textarea');
-        ta.value = text;
-        ta.style.position = 'fixed';
-        ta.style.opacity = '0';
-        document.body.appendChild(ta);
-        ta.select();
-        document.execCommand('copy');
-        document.body.removeChild(ta);
-        alert('✅ Question copied to clipboard!\n\nGemini is opening now — just paste (Ctrl+V or long press) and send.');
-        window.open('https://gemini.google.com/app', '_blank');
+        const text = `${q.q}\n${optsText}\n\nExplain the correct answer in detail.`;
+        const url = 'https://claude.ai/new?q=' + encodeURIComponent(text);
+        window.open(url, '_blank');
     },
 
     exitToSets() {
