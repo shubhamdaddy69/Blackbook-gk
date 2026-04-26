@@ -129,13 +129,13 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .qnav-btn.answered { border-color: var(--succ); background: #d1fae5; color: #065f46; }
 .qnav-btn.answered.current { background: var(--primary); color: white; border-color: var(--primary); }
 
-.nav-row { display: flex; gap: 10px; margin-top: 20px; }
-.btn { padding: 12px 24px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.75rem; font-weight: bold; border: none; }
-.btn-next { background: var(--primary); color: white; flex-grow: 1; }
+.nav-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 20px; }
+.btn { padding: 12px 8px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.72rem; font-weight: bold; border: none; text-align: center; white-space: nowrap; }
+.btn-next { background: var(--primary); color: white; }
 .btn-submit { background: var(--succ); color: white; }
 .btn-back { background: #94a3b8; color: white; }
 .btn-pdf { background: #7c3aed; color: white; }
-.btn-bookmark { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24 !important; font-size: 0.7rem !important; }
+.btn-bookmark { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24 !important; }
 .btn-bookmark.active { background: #f59e0b; color: white; border-color: #d97706 !important; }
 
 .sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid #cbd5e1; }
@@ -202,7 +202,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     <div id="q-navigator" style="margin-top:0;margin-bottom:16px;"></div>
     <div class="nav-row">
         <button class="btn btn-back" onclick="app.prev()">PREV</button>
-        <button class="btn btn-next" style="flex-grow:0; padding:12px 28px;" onclick="app.next()">NEXT</button>
+        <button class="btn btn-next" onclick="app.next()">NEXT</button>
         <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">&#9733; SAVE</button>
         <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
     </div>
@@ -32480,8 +32480,31 @@ const app = {
         const optLetters = ['A', 'B', 'C', 'D'];
         const optsText = q.opts.map((o, i) => `${optLetters[i]}. ${o}`).join('\n');
         const text = `Q. ${q.q}\n${optsText}\n\nPlease explain the correct answer in detail.`;
-        const url = `https://gemini.google.com/app?q=${encodeURIComponent(text)}`;
-        window.open(url, '_blank');
+        // Copy to clipboard first, then open Gemini
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(text).then(() => {
+                alert('✅ Question copied to clipboard!\n\nGemini is opening now — just paste (Ctrl+V or long press) and send.');
+                window.open('https://gemini.google.com/app', '_blank');
+            }).catch(() => {
+                // Fallback for clipboard failure
+                this._geminiCopyFallback(text);
+            });
+        } else {
+            this._geminiCopyFallback(text);
+        }
+    },
+
+    _geminiCopyFallback(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        alert('✅ Question copied to clipboard!\n\nGemini is opening now — just paste (Ctrl+V or long press) and send.');
+        window.open('https://gemini.google.com/app', '_blank');
     },
 
     exitToSets() {
