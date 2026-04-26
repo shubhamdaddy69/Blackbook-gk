@@ -32477,7 +32477,9 @@ const app = {
     openGemini() {
         const q = this.testQs[this.idx];
         if (!q) return;
-        const text = q.q;
+        const optLetters = ['A', 'B', 'C', 'D'];
+        const optsText = q.opts.map((o, i) => `${optLetters[i]}. ${o}`).join(' ');
+        const text = `${q.q} ${optsText}`;
         const url = 'https://www.google.com/search?q=' + encodeURIComponent(text);
         window.open(url, '_blank');
     },
