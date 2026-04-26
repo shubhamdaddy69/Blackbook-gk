@@ -41,9 +41,63 @@
     body.dark-theme .opt-btn.unlocked:hover { background: #1a3045; }
     body.dark-theme #timer { background: #0369a1; }
     body.dark-theme .app-header { box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
-    .theme-toggle-bar { display:flex; gap:10px; margin-bottom:16px; }
-    .theme-btn { padding:8px 18px; border-radius:8px; border:2px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font-family:'Orbitron'; font-size:0.65rem; font-weight:bold; transition:0.2s; }
-    .theme-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
+
+    /* ── Stylish header theme toggle ── */
+    .theme-toggle-wrap {
+        display: flex;
+        background: rgba(255,255,255,0.08);
+        border: 1px solid rgba(255,255,255,0.15);
+        border-radius: 30px;
+        padding: 3px;
+        gap: 2px;
+        backdrop-filter: blur(6px);
+    }
+    .theme-pill {
+        padding: 5px 13px;
+        border-radius: 24px;
+        border: none;
+        font-family: 'Orbitron';
+        font-size: 0.58rem;
+        font-weight: 700;
+        cursor: pointer;
+        letter-spacing: 0.5px;
+        transition: all 0.25s ease;
+        color: rgba(255,255,255,0.6);
+        background: transparent;
+    }
+    .theme-pill.orig { color: #fbbf24; }
+    .theme-pill.orig:not(.inactive) { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1a1a1a; box-shadow: 0 2px 8px rgba(251,191,36,0.45); }
+    .theme-pill.dark:not(.inactive) { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; box-shadow: 0 2px 8px rgba(168,85,247,0.45); }
+    .theme-pill.dark { color: rgba(255,255,255,0.5); }
+    .theme-pill.inactive { background: transparent !important; box-shadow: none !important; }
+
+    /* ── Dark theme colorful buttons ── */
+    body.dark-theme .btn-next { background: linear-gradient(135deg, #7c3aed, #a855f7) !important; color: #fff !important; box-shadow: 0 2px 12px rgba(168,85,247,0.4); border: none !important; }
+    body.dark-theme .btn-submit { background: linear-gradient(135deg, #059669, #34d399) !important; color: #fff !important; box-shadow: 0 2px 12px rgba(52,211,153,0.4); border: none !important; }
+    body.dark-theme .btn-back { background: linear-gradient(135deg, #374151, #4b5563) !important; color: #e2e8f0 !important; border: none !important; }
+    body.dark-theme .btn-pdf { background: linear-gradient(135deg, #6d28d9, #8b5cf6) !important; color: #fff !important; box-shadow: 0 2px 12px rgba(139,92,246,0.4); border: none !important; }
+    body.dark-theme .btn-bookmark { background: rgba(251,191,36,0.1) !important; color: #fbbf24 !important; border: 2px solid #f59e0b !important; }
+    body.dark-theme .btn-bookmark.active { background: linear-gradient(135deg, #d97706, #f59e0b) !important; color: #fff !important; border-color: #f59e0b !important; box-shadow: 0 2px 10px rgba(245,158,11,0.4); }
+    body.dark-theme .btn { border-radius: 10px; }
+    body.dark-theme #resume-btn { background: linear-gradient(135deg, #0284c7, #38bdf8) !important; box-shadow: 0 2px 12px rgba(56,189,248,0.4); }
+    body.dark-theme .topic-card .btn, body.dark-theme .tab-btn { background: linear-gradient(135deg,#1e293b,#0f172a); border-color: #334155; color: #94a3b8; }
+    body.dark-theme .tab-btn.active { background: linear-gradient(135deg,#7c3aed,#a855f7) !important; color: #fff !important; border-color: #a855f7 !important; box-shadow: 0 2px 10px rgba(168,85,247,0.35); }
+    body.dark-theme [style*="background:#e0f2fe"] { background: rgba(56,189,248,0.12) !important; color: #38bdf8 !important; border-color: rgba(56,189,248,0.35) !important; }
+    body.dark-theme [style*="background:#4285f4"] { background: linear-gradient(135deg,#1d4ed8,#3b82f6) !important; }
+    body.dark-theme #counter-attempted { background: rgba(52,211,153,0.12) !important; color: #34d399 !important; border-color: rgba(52,211,153,0.35) !important; }
+    body.dark-theme #counter-unattempted { background: rgba(248,113,113,0.12) !important; color: #f87171 !important; border-color: rgba(248,113,113,0.35) !important; }
+    body.dark-theme .sol-box.correct { background: rgba(52,211,153,0.07) !important; }
+    body.dark-theme .sol-box.wrong { background: rgba(248,113,113,0.07) !important; }
+    body.dark-theme .tag-correct { background: rgba(52,211,153,0.15); color: #34d399; }
+    body.dark-theme .tag-wrong { background: rgba(248,113,113,0.15); color: #f87171; }
+    body.dark-theme .tag-skipped { background: rgba(148,163,184,0.1); color: #94a3b8; }
+    body.dark-theme .opt-row.is-correct { background: rgba(52,211,153,0.12); border-color: #34d399; color: #34d399; }
+    body.dark-theme .opt-row.is-user { background: rgba(248,113,113,0.12); border-color: #f87171; color: #f87171; }
+    body.dark-theme .opt-row.is-both { background: rgba(52,211,153,0.12); border-color: #34d399; color: #34d399; }
+    body.dark-theme .opt-row.neutral { background: rgba(255,255,255,0.03); color: #64748b; }
+    body.dark-theme .opt-btn.correct { background: rgba(52,211,153,0.12) !important; border-color: #34d399 !important; color: #34d399 !important; }
+    body.dark-theme .opt-btn.wrong { background: rgba(248,113,113,0.12) !important; border-color: #f87171 !important; color: #f87171 !important; }
+    body.dark-theme .opt-btn.selected { background: rgba(168,85,247,0.15) !important; border-color: #a855f7 !important; color: #e879f9 !important; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 50px; }
@@ -175,15 +229,15 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     <div style="display:flex;align-items:center;gap:8px;">
         <button id="pause-btn" onclick="app.pauseTest()" style="display:none;background:#f59e0b;color:#fff;border:none;padding:6px 12px;border-radius:8px;font-family:Orbitron;font-size:0.65rem;font-weight:bold;cursor:pointer;">⏸ PAUSE</button>
         <button id="palette-toggle-btn" onclick="app.togglePalette()" style="display:none;font-family:'Orbitron';font-size:0.65rem;font-weight:bold;background:#e0f2fe;color:#0284c7;border:1.5px solid #bae6fd;border-radius:8px;padding:6px 12px;cursor:pointer;">🗂 PALETTE</button>
+        <div id="theme-toggle-wrap" class="theme-toggle-wrap">
+            <button class="theme-pill orig" id="pill-orig" onclick="app.setTheme('original')">☀ LIGHT</button>
+            <button class="theme-pill dark inactive" id="pill-dark" onclick="app.setTheme('dark')">🌙 DARK</button>
+        </div>
         <div id="timer" style="display:none;">20:00</div>
     </div>
 </div>
 
 <div class="screen active" id="screen-home">
-    <div class="theme-toggle-bar">
-        <button class="theme-btn active" id="theme-original" onclick="app.setTheme('original')">☀️ ORIGINAL THEME</button>
-        <button class="theme-btn" id="theme-dark" onclick="app.setTheme('dark')">🌙 DARK THEME</button>
-    </div>
     <div class="tabs">
         <button class="tab-btn active" onclick="app.filterHome('topics')">TOPICS</button>
         <button class="tab-btn" onclick="app.filterHome('bookmarks')">SAVED (★)</button>
@@ -31925,9 +31979,15 @@ const app = {
         } else {
             document.body.classList.remove('dark-theme');
         }
-        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
-        const activeBtn = document.getElementById(`theme-${theme}`);
-        if (activeBtn) activeBtn.classList.add('active');
+        const pillOrig = document.getElementById('pill-orig');
+        const pillDark = document.getElementById('pill-dark');
+        if (theme === 'dark') {
+            if (pillOrig) pillOrig.classList.add('inactive');
+            if (pillDark) pillDark.classList.remove('inactive');
+        } else {
+            if (pillOrig) pillOrig.classList.remove('inactive');
+            if (pillDark) pillDark.classList.add('inactive');
+        }
     },
 
     filterHome(type) {
@@ -32151,6 +32211,7 @@ const app = {
         this.switchScreen('screen-test');
         document.getElementById('timer').style.display = 'block';
         document.getElementById('pause-btn').style.display = 'inline-block';
+        document.getElementById('theme-toggle-wrap').style.display = 'none';
         this.paused = false;
         const pb = document.getElementById('palette-toggle-btn');
         if (pb) pb.style.display = 'inline-block';
@@ -32533,6 +32594,7 @@ const app = {
         this.switchScreen('screen-home');
         clearInterval(this.timerInt);
         document.getElementById('timer').style.display = 'none';
+        document.getElementById('theme-toggle-wrap').style.display = '';
         const pb = document.getElementById('palette-toggle-btn');
         if (pb) pb.style.display = 'none';
     },
