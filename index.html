@@ -19,6 +19,31 @@
         --text: #0f172a;
         --muted: #64748b;
     }
+    body.dark-theme {
+        --bg: #0a0a0a;
+        --surface: #1a1a1a;
+        --card: #1e1e1e;
+        --border: #333;
+        --primary: #38bdf8;
+        --sky: #7dd3fc;
+        --succ: #34d399;
+        --err: #f87171;
+        --text: #f1f5f9;
+        --muted: #94a3b8;
+    }
+    body.dark-theme .topic-card {
+        background: linear-gradient(145deg, #1e1e1e, #111) !important;
+    }
+    body.dark-theme .topic-card:hover {
+        background: linear-gradient(145deg, #252525, #1a2535) !important;
+    }
+    body.dark-theme .opt-btn { background: #2a2a2a; color: var(--text); }
+    body.dark-theme .opt-btn.unlocked:hover { background: #1a3045; }
+    body.dark-theme #timer { background: #0369a1; }
+    body.dark-theme .app-header { box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+    .theme-toggle-bar { display:flex; gap:10px; margin-bottom:16px; }
+    .theme-btn { padding:8px 18px; border-radius:8px; border:2px solid var(--border); background:var(--surface); color:var(--text); cursor:pointer; font-family:'Orbitron'; font-size:0.65rem; font-weight:bold; transition:0.2s; }
+    .theme-btn.active { background:var(--primary); color:white; border-color:var(--primary); }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 50px; }
@@ -136,10 +161,17 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 
 <div class="app-header">
     <h1 onclick="app.showHome()">SSC MOCK PORTAL</h1>
-    <div id="timer" style="display:none;">20:00</div>
+    <div style="display:flex;align-items:center;gap:8px;">
+        <button id="palette-toggle-btn" onclick="app.togglePalette()" style="display:none;font-family:'Orbitron';font-size:0.65rem;font-weight:bold;background:#e0f2fe;color:#0284c7;border:1.5px solid #bae6fd;border-radius:8px;padding:6px 12px;cursor:pointer;">🗂 PALETTE</button>
+        <div id="timer" style="display:none;">20:00</div>
+    </div>
 </div>
 
 <div class="screen active" id="screen-home">
+    <div class="theme-toggle-bar">
+        <button class="theme-btn active" id="theme-original" onclick="app.setTheme('original')">☀️ ORIGINAL THEME</button>
+        <button class="theme-btn" id="theme-dark" onclick="app.setTheme('dark')">🌙 DARK THEME</button>
+    </div>
     <div class="tabs">
         <button class="tab-btn active" onclick="app.filterHome('topics')">TOPICS</button>
         <button class="tab-btn" onclick="app.filterHome('bookmarks')">SAVED (★)</button>
@@ -157,7 +189,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 <div class="screen" id="screen-test">
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:12px;">
         <button class="btn" style="background:#e0f2fe; color:#0284c7; border:1.5px solid #bae6fd; font-size:0.7rem; padding:8px 16px;" onclick="app.exitToHome()">&#127968; HOME</button>
-        <button class="btn" style="background:#f1f5f9; color:#475569; border:1.5px solid #cbd5e1; font-size:0.7rem; padding:8px 16px;" onclick="app.exitToSets()">&#8592; SETS</button>
+        <button class="btn" style="background:#4285f4; color:#fff; border:none; font-size:0.7rem; padding:8px 16px;" onclick="app.openGemini()">✨ GEMINI AI</button>
         <div id="attempt-counter" style="margin-left:auto; display:flex; gap:8px; align-items:center;">
             <span id="counter-attempted" style="background:#d1fae5; color:#065f46; border:1.5px solid #6ee7b7; border-radius:8px; padding:6px 12px; font-size:0.72rem; font-weight:700; font-family:'Orbitron';">✓ 0</span>
             <span id="counter-unattempted" style="background:#fee2e2; color:#991b1b; border:1.5px solid #fca5a5; border-radius:8px; padding:6px 12px; font-size:0.72rem; font-weight:700; font-family:'Orbitron';">✗ 0</span>
@@ -167,13 +199,13 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         <div id="q-text" style="font-weight:700;"></div>
     </div>
     <div id="options-area"></div>
+    <div id="q-navigator" style="margin-top:0;margin-bottom:16px;"></div>
     <div class="nav-row">
         <button class="btn btn-back" onclick="app.prev()">PREV</button>
         <button class="btn btn-next" style="flex-grow:0; padding:12px 28px;" onclick="app.next()">NEXT</button>
         <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">&#9733; SAVE</button>
         <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
     </div>
-    <div id="q-navigator" style="margin-top:16px;"></div>
 </div>
 
 <div class="screen" id="screen-analysis">
@@ -31868,7 +31900,22 @@ const app = {
         }
         this.bookmarks = JSON.parse(localStorage.getItem('ssc_favs') || '[]');
         this.blunders = JSON.parse(localStorage.getItem('ssc_errs') || '[]');
+        const savedTheme = localStorage.getItem('ssc_theme') || 'original';
+        this.setTheme(savedTheme);
         this.filterHome('topics');
+    },
+
+    setTheme(theme) {
+        this.currentTheme = theme;
+        localStorage.setItem('ssc_theme', theme);
+        if (theme === 'dark') {
+            document.body.classList.add('dark-theme');
+        } else {
+            document.body.classList.remove('dark-theme');
+        }
+        document.querySelectorAll('.theme-btn').forEach(b => b.classList.remove('active'));
+        const activeBtn = document.getElementById(`theme-${theme}`);
+        if (activeBtn) activeBtn.classList.add('active');
     },
 
     filterHome(type) {
@@ -31918,7 +31965,15 @@ const app = {
             allCard.innerHTML = `<h3>REVIEW ALL</h3><p style='font-size:0.75rem;color:var(--muted)'>${list.length} Questions</p>`;
             allCard.onclick = () => this.startTest(list, 'Review All', null);
             cont.appendChild(allCard);
-            Object.values(groups).forEach(g => {
+            // Sort groups by topic order in MASTER_DATA, then by set number
+            const topicOrder = Object.keys(this.db);
+            const sortedGroups = Object.values(groups).sort((a, b) => {
+                const ai = topicOrder.indexOf(a.topic);
+                const bi = topicOrder.indexOf(b.topic);
+                if (ai !== bi) return ai - bi;
+                return (a.set || 0) - (b.set || 0);
+            });
+            sortedGroups.forEach(g => {
                 const card = document.createElement('div');
                 card.className = 'topic-card';
                 const statusLabel = type === 'blunders'
@@ -32080,11 +32135,22 @@ const app = {
         this.testQs = qs; this.userAns = {}; this.idx = 0; this.timer = 1200;
         this.activeSet = setNum || null;
         this.activeTopic = topic || this.activeTopic;
+        this.paletteVisible = true;
         this.switchScreen('screen-test');
         document.getElementById('timer').style.display = 'block';
+        const pb = document.getElementById('palette-toggle-btn');
+        if (pb) pb.style.display = 'inline-block';
         this.renderQ();
         this.renderNavigator();
         this.startTimer();
+    },
+
+    togglePalette() {
+        this.paletteVisible = !this.paletteVisible;
+        const nav = document.getElementById('q-navigator');
+        const btn = document.getElementById('palette-toggle-btn');
+        if (nav) nav.style.display = this.paletteVisible ? '' : 'none';
+        if (btn) btn.textContent = this.paletteVisible ? '🗂 PALETTE' : '🗂 SHOW';
     },
 
     renderNavigator() {
@@ -32110,9 +32176,71 @@ const app = {
         if (cu) cu.textContent = `✗ ${unattempted} Left`;
     },
 
+    formatQuestionText(qText) {
+        // Detect and format "Statement" type questions
+        if (/statement[\s\-]*(i|1|ii|2|iii|3|iv|4)/i.test(qText) || /consider the following statements/i.test(qText)) {
+            // Split on statement markers
+            const parts = qText.split(/(?=\bstatement[\s\-]*(i+|\d+)\s*[:–\-])/i);
+            if (parts.length > 1) {
+                const intro = parts[0];
+                const stmts = parts.slice(1);
+                const stmtHtml = stmts.map(s => {
+                    // Extract label and content
+                    const match = s.match(/^(statement[\s\-]*(?:i+|\d+)\s*[:–\-]?\s*)(.*)/is);
+                    if (match) {
+                        return `<div style="display:flex;gap:8px;align-items:flex-start;background:#f0f7ff;border-left:3px solid #38bdf8;border-radius:0 8px 8px 0;padding:7px 10px;margin-bottom:6px;">
+                            <span style="font-weight:700;color:#0284c7;white-space:nowrap;font-size:0.85rem;min-width:90px;">${match[1].trim()}</span>
+                            <span style="font-size:0.9rem;">${match[2].trim()}</span>
+                        </div>`;
+                    }
+                    return `<div style="padding:5px 0;">${s}</div>`;
+                }).join('');
+                return `<div>${intro}</div><div style="margin-top:8px;">${stmtHtml}</div>`;
+            }
+        }
+
+        // Detect and format Match the Following / List I - List II
+        if (/list[\s\-]*(i|1|ii|2)/i.test(qText) || /match the following/i.test(qText)) {
+            const lines = qText.split(/\n|(?<=[a-z\)\.])(?=[A-Z\(](?!\.))/g).map(l => l.trim()).filter(Boolean);
+            const list1Items = [], list2Items = [];
+            let introText = '', inList1 = false, inList2 = false;
+            lines.forEach(line => {
+                if (/^list[\s\-]*i(?!i)/i.test(line)) { inList1 = true; inList2 = false; return; }
+                if (/^list[\s\-]*ii/i.test(line)) { inList1 = false; inList2 = true; return; }
+                if (inList1) list1Items.push(line);
+                else if (inList2) list2Items.push(line);
+                else introText += line + ' ';
+            });
+
+            if (list1Items.length && list2Items.length) {
+                const maxLen = Math.max(list1Items.length, list2Items.length);
+                let tableRows = '';
+                for (let i = 0; i < maxLen; i++) {
+                    tableRows += `<tr>
+                        <td style="padding:6px 10px;border:1px solid #dbeafe;background:#f0f7ff;font-size:0.88rem;">${list1Items[i] || ''}</td>
+                        <td style="padding:6px 10px;border:1px solid #ede9fe;background:#faf5ff;font-size:0.88rem;">${list2Items[i] || ''}</td>
+                    </tr>`;
+                }
+                return `<div style="margin-bottom:6px;">${introText.trim()}</div>
+                <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;margin-top:6px;">
+                    <thead>
+                        <tr>
+                            <th style="padding:7px 10px;background:#dbeafe;color:#1d4ed8;font-size:0.8rem;text-align:left;border:1px solid #bfdbfe;">LIST I</th>
+                            <th style="padding:7px 10px;background:#ede9fe;color:#6d28d9;font-size:0.8rem;text-align:left;border:1px solid #ddd6fe;">LIST II</th>
+                        </tr>
+                    </thead>
+                    <tbody>${tableRows}</tbody>
+                </table>`;
+            }
+        }
+
+        return qText;
+    },
+
     renderQ() {
         const q = this.testQs[this.idx];
-        document.getElementById('q-text').innerText = `Q.${this.idx + 1}: ${q.q}`;
+        const formattedQ = this.formatQuestionText(q.q);
+        document.getElementById('q-text').innerHTML = `<span style="font-weight:700;color:var(--muted);font-size:0.85rem;">Q.${this.idx + 1}:</span><div style="margin-top:6px;">${formattedQ}</div>`;
         const bmBtn = document.getElementById('q-bookmark');
         const isBookmarked = this.bookmarks.some(b => b.q === q.q);
         bmBtn.classList.toggle('active', isBookmarked);
@@ -32191,6 +32319,8 @@ const app = {
         clearInterval(this.timerInt);
         this.switchScreen('screen-analysis');
         document.getElementById('timer').style.display = 'none';
+        const pb = document.getElementById('palette-toggle-btn');
+        if (pb) pb.style.display = 'none';
 
         let r = 0, w = 0, s = 0;
         const rows = [];
@@ -32280,10 +32410,11 @@ const app = {
         let pdfHTML = `
         <div id="__pdf_root__" style="background:#fff;color:#000;font-family:'Inter',sans-serif;padding:0;margin:0;">
             <div style="display:flex;gap:8px;margin-bottom:10px;">
+                <div style="flex:1;padding:6px 10px;background:#f0f0f0;border-left:4px solid #333;font-size:12px;font-weight:700;color:#333;">📚 Subject: ${topicLabel}</div>
+                <div style="flex:1;padding:6px 10px;background:#fff7ed;border-left:4px solid #c2410c;font-size:12px;font-weight:700;color:#c2410c;">🗂 Set No: ${setLabel}</div>
                 <div style="flex:1;padding:6px 10px;background:#d4f5d4;border-left:4px solid #005500;font-size:12px;font-weight:700;color:#005500;">✓ Correct: ${res.r}</div>
-                <div style="flex:1;padding:6px 10px;background:#ffd4d4;border-left:4px solid #aa0000;font-size:12px;font-weight:700;color:#aa0000;">✗ Wrong: ${res.w}</div>
-                <div style="flex:1;padding:6px 10px;background:#f0f0f0;border-left:4px solid #555;font-size:12px;font-weight:700;color:#555;">– Skipped: ${res.s}</div>
-                <div style="flex:1;padding:6px 10px;background:#d4eaff;border-left:4px solid #003399;font-size:12px;font-weight:700;color:#003399;">Score: ${res.finalScore.toFixed(2)}</div>
+                <div style="flex:1;padding:6px 10px;background:#ffd4d4;border-left:4px solid #aa0000;font-size:12px;font-weight:700;color:#aa0000;">✗ Incorrect: ${res.w}</div>
+                <div style="flex:1;padding:6px 10px;background:#d4eaff;border-left:4px solid #003399;font-size:12px;font-weight:700;color:#003399;">🏆 Score: ${res.finalScore.toFixed(2)}</div>
             </div>
             <div style="display:flex;flex-direction:column;gap:0;">`;
 
@@ -32343,6 +32474,16 @@ const app = {
         if (confirm('Quit the test and go to Home? Your progress will be lost.')) this.showHome();
     },
 
+    openGemini() {
+        const q = this.testQs[this.idx];
+        if (!q) return;
+        const optLetters = ['A', 'B', 'C', 'D'];
+        const optsText = q.opts.map((o, i) => `${optLetters[i]}. ${o}`).join('\n');
+        const text = `Q. ${q.q}\n${optsText}\n\nPlease explain the correct answer in detail.`;
+        const url = `https://gemini.google.com/app?q=${encodeURIComponent(text)}`;
+        window.open(url, '_blank');
+    },
+
     exitToSets() {
         if (confirm('Quit the test and go back to Sets? Your progress will be lost.')) {
             clearInterval(this.timerInt);
@@ -32356,6 +32497,8 @@ const app = {
         this.switchScreen('screen-home');
         clearInterval(this.timerInt);
         document.getElementById('timer').style.display = 'none';
+        const pb = document.getElementById('palette-toggle-btn');
+        if (pb) pb.style.display = 'none';
     },
 
     switchScreen(id) {
