@@ -165,6 +165,11 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 </head>
 <body>
 
+<div id="pause-overlay">
+    <h2>⏸ PAUSED</h2>
+    <p>Your quiz is paused. Take a break!</p>
+    <button id="resume-btn" onclick="app.pauseTest()">▶ RESUME QUIZ</button>
+</div>
 <div class="app-header">
     <h1 onclick="app.showHome()">BLACKBOOK GK BY SHUBHAM SIR</h1>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -32316,19 +32321,23 @@ const app = {
 
 
     pauseTest() {
-        if (this.paused) return;
-        this.paused = true;
-        clearInterval(this.timerInt);
-        document.getElementById('pause-overlay').classList.add('active');
-        document.getElementById('pause-btn').textContent = '▶ RESUME';
-        document.getElementById('pause-btn').onclick = () => this.resumeTest();
-    },
-    resumeTest() {
-        this.paused = false;
-        document.getElementById('pause-overlay').classList.remove('active');
-        document.getElementById('pause-btn').textContent = '⏸ PAUSE';
-        document.getElementById('pause-btn').onclick = () => this.pauseTest();
-        this.startTimer();
+        if (this.paused) {
+            // resume
+            this.paused = false;
+            this.startTimer();
+            document.getElementById('pause-overlay').classList.remove('active');
+            const btn = document.getElementById('pause-btn');
+            btn.textContent = '⏸ PAUSE';
+            btn.style.background = '#f59e0b';
+        } else {
+            // pause
+            this.paused = true;
+            clearInterval(this.timerInt);
+            document.getElementById('pause-overlay').classList.add('active');
+            const btn = document.getElementById('pause-btn');
+            btn.textContent = '▶ RESUME';
+            btn.style.background = '#059669';
+        }
     },
     startTimer() {
         clearInterval(this.timerInt);
