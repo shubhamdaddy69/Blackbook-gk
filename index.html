@@ -160,7 +160,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 <body>
 
 <div class="app-header">
-    <h1 onclick="app.showHome()">SSC MOCK PORTAL</h1>
+    <h1 onclick="app.showHome()">BLACKBOOK GK BY SHUBHAM SIR</h1>
     <div style="display:flex;align-items:center;gap:8px;">
         <button id="palette-toggle-btn" onclick="app.togglePalette()" style="display:none;font-family:'Orbitron';font-size:0.65rem;font-weight:bold;background:#e0f2fe;color:#0284c7;border:1.5px solid #bae6fd;border-radius:8px;padding:6px 12px;cursor:pointer;">🗂 PALETTE</button>
         <div id="timer" style="display:none;">20:00</div>
@@ -199,13 +199,13 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
         <div id="q-text" style="font-weight:700;"></div>
     </div>
     <div id="options-area"></div>
-    <div id="q-navigator" style="margin-top:0;margin-bottom:16px;"></div>
     <div class="nav-row">
         <button class="btn btn-back" onclick="app.prev()">PREV</button>
         <button class="btn btn-next" onclick="app.next()">NEXT</button>
         <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">&#9733; SAVE</button>
         <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
     </div>
+    <div id="q-navigator" style="margin-top:16px;"></div>
 </div>
 
 <div class="screen" id="screen-analysis">
@@ -32096,7 +32096,7 @@ const app = {
                 else if (l.startsWith('Exp:')) exp = l.slice(4).trim();
                 else qText += l + " ";
             });
-            return { q: qText.trim(), opts, correct: {'A':0,'B':1,'C':2,'D':3}[ans.charAt(0)], exp };
+            return { q: qText.trim().replace(/^[-–—]\s*/, ''), opts, correct: {'A':0,'B':1,'C':2,'D':3}[ans.charAt(0)], exp };
         });
     },
 
@@ -32240,7 +32240,7 @@ const app = {
     renderQ() {
         const q = this.testQs[this.idx];
         const formattedQ = this.formatQuestionText(q.q);
-        document.getElementById('q-text').innerHTML = `<span style="font-weight:700;color:var(--muted);font-size:0.85rem;">Q.${this.idx + 1}:</span><div style="margin-top:6px;">${formattedQ}</div>`;
+        document.getElementById('q-text').innerHTML = `<span style="font-weight:700;color:var(--muted);font-size:0.85rem;">Q.${this.idx + 1}:</span> ${formattedQ}`;
         const bmBtn = document.getElementById('q-bookmark');
         const isBookmarked = this.bookmarks.some(b => b.q === q.q);
         bmBtn.classList.toggle('active', isBookmarked);
@@ -32478,8 +32478,8 @@ const app = {
         const q = this.testQs[this.idx];
         if (!q) return;
         const optLetters = ['A', 'B', 'C', 'D'];
-        const optsText = q.opts.map((o, i) => `${optLetters[i]}. ${o}`).join(' ');
-        const text = `${q.q} ${optsText}`;
+        const optsText = q.opts.map((o, i) => `${optLetters[i]}. ${o}`).join(' | ');
+        const text = `${q.q} | ${optsText}`;
         const url = 'https://www.google.com/search?q=' + encodeURIComponent(text);
         window.open(url, '_blank');
     },
