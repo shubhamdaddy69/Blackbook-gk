@@ -33,10 +33,16 @@
     }
     body.dark-theme .topic-card {
         background: linear-gradient(145deg, #1e1e1e, #111) !important;
+        border-color: #2a2a2a !important;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
     }
     body.dark-theme .topic-card:hover {
         background: linear-gradient(145deg, #252525, #1a2535) !important;
+        border-color: #38bdf8 !important;
     }
+    body.dark-theme .topic-card h3 { color: #38bdf8 !important; }
+    body.dark-theme .topic-card .card-meta { color: #94a3b8 !important; }
+    body.dark-theme .topic-card .card-icon { filter: none; }
     body.dark-theme .opt-btn { background: #2a2a2a; color: var(--text); }
     body.dark-theme .opt-btn.unlocked:hover { background: #1a3045; }
     body.dark-theme #timer { background: #0369a1; }
@@ -45,12 +51,11 @@
     /* ── Stylish header theme toggle ── */
     .theme-toggle-wrap {
         display: flex;
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.15);
+        background: rgba(0,0,0,0.06);
+        border: 1px solid rgba(0,0,0,0.12);
         border-radius: 30px;
         padding: 3px;
         gap: 2px;
-        backdrop-filter: blur(6px);
     }
     .theme-pill {
         padding: 5px 13px;
@@ -62,14 +67,15 @@
         cursor: pointer;
         letter-spacing: 0.5px;
         transition: all 0.25s ease;
-        color: rgba(255,255,255,0.6);
+        color: #64748b;
         background: transparent;
     }
-    .theme-pill.orig { color: #fbbf24; }
     .theme-pill.orig:not(.inactive) { background: linear-gradient(135deg, #f59e0b, #fbbf24); color: #1a1a1a; box-shadow: 0 2px 8px rgba(251,191,36,0.45); }
     .theme-pill.dark:not(.inactive) { background: linear-gradient(135deg, #7c3aed, #a855f7); color: #fff; box-shadow: 0 2px 8px rgba(168,85,247,0.45); }
-    .theme-pill.dark { color: rgba(255,255,255,0.5); }
-    .theme-pill.inactive { background: transparent !important; box-shadow: none !important; }
+    .theme-pill.inactive { background: transparent !important; box-shadow: none !important; color: #64748b !important; }
+    /* Dark header overrides */
+    body.dark-theme .theme-toggle-wrap { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.15); }
+    body.dark-theme .theme-pill.inactive { color: rgba(255,255,255,0.6) !important; }
 
     /* ── Dark theme colorful buttons ── */
     body.dark-theme .btn-next { background: linear-gradient(135deg, #7c3aed, #a855f7) !important; color: #fff !important; box-shadow: 0 2px 12px rgba(168,85,247,0.4); border: none !important; }
@@ -80,7 +86,7 @@
     body.dark-theme .btn-bookmark.active { background: linear-gradient(135deg, #d97706, #f59e0b) !important; color: #fff !important; border-color: #f59e0b !important; box-shadow: 0 2px 10px rgba(245,158,11,0.4); }
     body.dark-theme .btn { border-radius: 10px; }
     body.dark-theme #resume-btn { background: linear-gradient(135deg, #0284c7, #38bdf8) !important; box-shadow: 0 2px 12px rgba(56,189,248,0.4); }
-    body.dark-theme .topic-card .btn, body.dark-theme .tab-btn { background: linear-gradient(135deg,#1e293b,#0f172a); border-color: #334155; color: #94a3b8; }
+    body.dark-theme .tab-btn { background: linear-gradient(135deg,#1e293b,#0f172a); border-color: #334155; color: #94a3b8; }
     body.dark-theme .tab-btn.active { background: linear-gradient(135deg,#7c3aed,#a855f7) !important; color: #fff !important; border-color: #a855f7 !important; box-shadow: 0 2px 10px rgba(168,85,247,0.35); }
     body.dark-theme [style*="background:#e0f2fe"] { background: rgba(56,189,248,0.12) !important; color: #38bdf8 !important; border-color: rgba(56,189,248,0.35) !important; }
     body.dark-theme [style*="background:#4285f4"] { background: linear-gradient(135deg,#1d4ed8,#3b82f6) !important; }
@@ -32594,6 +32600,7 @@ const app = {
         this.switchScreen('screen-home');
         clearInterval(this.timerInt);
         document.getElementById('timer').style.display = 'none';
+        document.getElementById('pause-btn').style.display = 'none';
         document.getElementById('theme-toggle-wrap').style.display = '';
         const pb = document.getElementById('palette-toggle-btn');
         if (pb) pb.style.display = 'none';
