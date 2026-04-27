@@ -43,6 +43,10 @@
     body.dark-theme .topic-card h3 { color: #38bdf8 !important; }
     body.dark-theme .topic-card .card-meta { color: #94a3b8 !important; }
     body.dark-theme .topic-card .card-icon { filter: none; }
+    body.dark-theme #score-card { background: var(--surface) !important; }
+    body.dark-theme #score-card h1 { color: var(--primary) !important; }
+    body.dark-theme #score-card [style*="background:#d1fae5"] { background: rgba(52,211,153,0.15) !important; color: #34d399 !important; border-color: rgba(52,211,153,0.4) !important; }
+    body.dark-theme #score-card [style*="background:#fee2e2"] { background: rgba(248,113,113,0.15) !important; color: #f87171 !important; border-color: rgba(248,113,113,0.4) !important; }
     body.dark-theme .opt-btn { background: #2a2a2a; color: var(--text); }
     body.dark-theme .opt-btn.unlocked:hover { background: #1a3045; }
     body.dark-theme #timer { background: #0369a1; }
@@ -221,7 +225,74 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .opt-row.is-both { background: #d1fae5; border-color: #6ee7b7; color: #065f46; font-weight: 600; }
 .opt-row.neutral { background: #f8fafc; color: var(--muted); }
 
-/* ── Smaller sub-cards on the Sets screen ── */
+/* Attempts Ribbon */
+.attempts-ribbon {
+    position: absolute;
+    top: 0; left: 50%;
+    transform: translateX(-50%);
+    background: linear-gradient(135deg, #7c3aed, #a855f7);
+    color: #fff;
+    font-family: 'Orbitron';
+    font-size: 0.5rem;
+    font-weight: 700;
+    padding: 3px 10px 4px;
+    border-radius: 0 0 8px 8px;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    z-index: 2;
+    box-shadow: 0 2px 8px rgba(124,58,237,0.4);
+    transition: background 0.2s;
+}
+.attempts-ribbon:hover { background: linear-gradient(135deg, #6d28d9, #9333ea); }
+.attempts-ribbon .ribbon-count {
+    display: inline-block;
+    background: rgba(255,255,255,0.25);
+    border-radius: 10px;
+    padding: 0 5px;
+    margin-left: 4px;
+}
+
+/* Attempts Modal */
+#attempts-modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:10001; align-items:center; justify-content:center; }
+#attempts-modal.open { display:flex; }
+#attempts-modal-box {
+    background: var(--surface); border: 2px solid var(--border);
+    border-radius: 18px; padding: 24px; max-width: 480px; width: 94%;
+    max-height: 80vh; overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+#attempts-modal-box h2 { font-family:'Orbitron'; font-size:0.85rem; color:var(--primary); margin-bottom:16px; letter-spacing:1px; }
+.attempt-item {
+    border: 1.5px solid var(--border); border-radius: 12px;
+    margin-bottom: 12px; overflow: hidden;
+    transition: box-shadow 0.2s;
+}
+.attempt-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 14px; background: var(--bg); cursor: pointer;
+    gap: 8px; flex-wrap: wrap;
+}
+.attempt-header:hover { background: #e0f2fe; }
+body.dark-theme .attempt-header:hover { background: rgba(56,189,248,0.08); }
+.attempt-badge { font-family:'Orbitron'; font-size:0.62rem; font-weight:700; color:var(--primary); }
+.attempt-meta { font-size:0.7rem; color:var(--muted); }
+.attempt-score { font-family:'Orbitron'; font-size:0.7rem; font-weight:700; }
+.attempt-body { display:none; padding:12px 14px; border-top:1px solid var(--border); }
+.attempt-body.open { display:block; }
+.attempt-q { margin-bottom:10px; padding:8px 10px; border-radius:8px; border-left:3px solid #94a3b8; background:var(--bg); }
+.attempt-q .aq-status { font-size:0.62rem; font-weight:700; text-transform:uppercase; margin-bottom:4px; }
+.attempt-q .aq-text { font-size:0.8rem; font-weight:600; margin-bottom:6px; }
+.attempt-q .aq-opts { display:grid; grid-template-columns:1fr 1fr; gap:3px; font-size:0.75rem; }
+.attempt-q .aq-opt { padding:3px 6px; border-radius:5px; }
+.attempt-q .aq-opt.correct { background:#d1fae5; color:#065f46; font-weight:700; }
+.attempt-q .aq-opt.wrong { background:#fee2e2; color:#991b1b; font-weight:700; }
+.attempt-q .aq-opt.neutral { color:var(--muted); }
+
+/* Confirm modal dark support */
+body.dark-theme #confirm-box { background: var(--surface); }
+body.dark-theme #confirm-no { background: var(--surface); border-color: var(--border); color: var(--text); }
+
 #sets-container {
     grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
     gap: 12px;
@@ -251,6 +322,19 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     <p>Your quiz is paused. Take a break!</p>
     <button id="resume-btn" onclick="app.pauseTest()">▶ RESUME QUIZ</button>
 </div>
+<!-- Custom Confirmation Modal -->
+<div id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:10000;align-items:center;justify-content:center;">
+    <div id="confirm-box" style="background:var(--surface);border:2px solid var(--border);border-radius:18px;padding:30px 28px;max-width:340px;width:90%;text-align:center;box-shadow:0 8px 40px rgba(0,0,0,0.35);position:relative;">
+        <div id="confirm-icon" style="font-size:2.2rem;margin-bottom:10px;">⚠️</div>
+        <h3 id="confirm-title" style="font-family:'Orbitron';font-size:0.85rem;color:var(--primary);letter-spacing:1px;margin-bottom:10px;"></h3>
+        <p id="confirm-msg" style="font-size:0.88rem;color:var(--muted);margin-bottom:22px;line-height:1.5;"></p>
+        <div style="display:flex;gap:12px;justify-content:center;">
+            <button id="confirm-no" style="flex:1;padding:12px;border-radius:10px;border:2px solid var(--border);background:var(--surface);color:var(--text);font-family:'Orbitron';font-size:0.7rem;font-weight:bold;cursor:pointer;" onclick="app.closeConfirm()">✕ NO</button>
+            <button id="confirm-yes" style="flex:1;padding:12px;border-radius:10px;border:none;background:linear-gradient(135deg,#dc2626,#ef4444);color:#fff;font-family:'Orbitron';font-size:0.7rem;font-weight:bold;cursor:pointer;">✓ YES</button>
+        </div>
+    </div>
+</div>
+
 <div class="app-header">
     <h1 onclick="app.showHome()">BLACKBOOK GK BY SHUBHAM SIR</h1>
     <div style="display:flex;align-items:center;gap:8px;">
@@ -293,21 +377,32 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     </div>
     <div id="options-area"></div>
     <div class="nav-row">
+        <button class="btn btn-submit" onclick="app.confirmSubmit()">SUBMIT</button>
+        <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">&#9733; SAVE</button>
         <button class="btn btn-back" onclick="app.prev()">PREV</button>
         <button class="btn btn-next" onclick="app.next()">NEXT</button>
-        <button class="btn btn-bookmark" id="q-bookmark" onclick="app.toggleBookmark()" title="Save this question">&#9733; SAVE</button>
-        <button class="btn btn-submit" onclick="app.submit()">SUBMIT</button>
     </div>
     <div id="q-navigator" style="margin-top:16px;"></div>
 </div>
 
 <div class="screen" id="screen-analysis">
-    <div id="score-card" style="background:white; padding:20px; border-radius:12px; text-align:center; margin-bottom:20px; border:2px solid var(--border)"></div>
+    <div id="score-card" style="background:var(--surface); padding:20px; border-radius:12px; text-align:center; margin-bottom:20px; border:2px solid var(--border)"></div>
     <div style="display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap;">
         <button class="btn btn-next" style="flex:1;" onclick="app.showHome()">FINISH REVIEW</button>
         <button class="btn btn-pdf" onclick="app.downloadPDF()">⬇ DOWNLOAD PDF</button>
     </div>
     <div id="analysis-list"></div>
+</div>
+
+<!-- Attempts Modal -->
+<div id="attempts-modal">
+    <div id="attempts-modal-box">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+            <h2 style="margin-bottom:0;">📋 PAST ATTEMPTS</h2>
+            <button onclick="app.closeAttemptsModal()" style="background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted);">✕</button>
+        </div>
+        <div id="attempts-list"></div>
+    </div>
 </div>
 
 <script>
@@ -32216,13 +32311,26 @@ const app = {
             const card = document.createElement('div');
             card.className = 'topic-card set-card';
             card.style.cssText = `background:linear-gradient(145deg,#ffffff,${bg}); border-color:${accent};`;
+            const topic = this.activeTopic;
+            const setNum = num;
+            const attemptsCount = this.getAttemptsForSet(topic, setNum).length;
+            const ribbonLabel = attemptsCount > 0
+                ? `ATTEMPTS <span class="ribbon-count">${attemptsCount}</span>`
+                : `ATTEMPTS`;
             card.innerHTML = `
-                <div style="font-family:'Orbitron';font-size:0.75rem;font-weight:700;color:${text};line-height:1.5;text-align:center;">
+                <div class="attempts-ribbon" id="ribbon-${num}">${ribbonLabel}</div>
+                <div style="font-family:'Orbitron';font-size:0.75rem;font-weight:700;color:${text};line-height:1.5;text-align:center;margin-top:14px;">
                     ${this.activeTopic}<br>Set ${num}
                 </div>
                 <p class="card-meta" style="margin-top:7px;">${chunk.length} Qs · 30 min</p>`;
             card.onclick = () => this.startTest(chunk, this.activeTopic, num);
             cont.appendChild(card);
+            // Attach ribbon click separately after append
+            const ribbon = card.querySelector('.attempts-ribbon');
+            ribbon.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.showAttemptsModal(topic, setNum, e);
+            });
         }
     },
 
@@ -32446,7 +32554,7 @@ const app = {
         const rows = [];
 
         const attemptKey = `ssc_attempt_${Date.now()}`;
-        const attemptData = { topic: this.activeTopic, date: new Date().toLocaleString(), answers: this.userAns, questions: this.testQs };
+        const attemptData = { topic: this.activeTopic, setNum: this.activeSet, date: new Date().toLocaleString(), timestamp: Date.now(), answers: this.userAns, questions: this.testQs };
         localStorage.setItem(attemptKey, JSON.stringify(attemptData));
 
         const entries = this.testQs.map((q, i) => {
@@ -32499,8 +32607,14 @@ const app = {
 
         document.getElementById('score-card').innerHTML = `
             <h1 style="font-size:2.5rem; color:var(--primary); font-family:'Orbitron';">${finalScore.toFixed(2)}</h1>
-            <p style="margin-top:8px;">Correct: <b style="color:var(--succ)">${r}</b> &nbsp;|&nbsp; Wrong: <b style="color:var(--err)">${w}</b> &nbsp;|&nbsp; Skipped: <b>${s}</b></p>
-            <p style="font-size:0.75rem; color:var(--muted); margin-top:4px;">${this.lastResult.date}</p>`;
+            <p style="margin-top:10px; color:var(--text); font-size:0.95rem;">
+                <span style="display:inline-flex;align-items:center;gap:5px;background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;border-radius:8px;padding:5px 14px;font-weight:700;font-family:'Orbitron';font-size:0.72rem;">✓ Correct: ${r}</span>
+                &nbsp;
+                <span style="display:inline-flex;align-items:center;gap:5px;background:#fee2e2;color:#991b1b;border:1.5px solid #fca5a5;border-radius:8px;padding:5px 14px;font-weight:700;font-family:'Orbitron';font-size:0.72rem;">✗ Wrong: ${w}</span>
+                &nbsp;
+                <span style="display:inline-flex;align-items:center;gap:5px;background:var(--bg);color:var(--muted);border:1.5px solid var(--border);border-radius:8px;padding:5px 14px;font-weight:700;font-family:'Orbitron';font-size:0.72rem;">⬜ Skipped: ${s}</span>
+            </p>
+            <p style="font-size:0.75rem; color:var(--muted); margin-top:10px; font-family:'Inter';">${this.lastResult.date}</p>`;
         document.getElementById('analysis-list').innerHTML = listHtml;
     },
 
@@ -32591,7 +32705,11 @@ const app = {
     },
 
     exitToHome() {
-        if (confirm('Quit the test and go to Home? Your progress will be lost.')) this.showHome();
+        app.showConfirm(
+            '🏠 GO HOME?',
+            'This will quit the test. All progress will be lost!',
+            () => this.showHome()
+        );
     },
 
     openGemini() {
@@ -32604,12 +32722,120 @@ const app = {
         window.open(url, '_blank');
     },
 
-    exitToSets() {
-        if (confirm('Quit the test and go back to Sets? Your progress will be lost.')) {
-            clearInterval(this.timerInt);
-            document.getElementById('timer').style.display = 'none';
-            this.switchScreen('screen-sets');
+    confirmSubmit() {
+        app.showConfirm(
+            '📝 SUBMIT TEST?',
+            'Are you sure you want to submit and see your results?',
+            () => this.submit(),
+            '#059669'
+        );
+    },
+
+    showConfirm(title, msg, onYes, yesColor) {
+        const modal = document.getElementById('confirm-modal');
+        document.getElementById('confirm-title').textContent = title;
+        document.getElementById('confirm-msg').textContent = msg;
+        const yesBtn = document.getElementById('confirm-yes');
+        yesBtn.style.background = yesColor
+            ? `linear-gradient(135deg,${yesColor},${yesColor}cc)`
+            : 'linear-gradient(135deg,#dc2626,#ef4444)';
+        yesBtn.onclick = () => { app.closeConfirm(); onYes(); };
+        modal.style.display = 'flex';
+    },
+
+    closeConfirm() {
+        document.getElementById('confirm-modal').style.display = 'none';
+    },
+
+    // ── Attempts ribbon & modal ──
+    getAttemptsForSet(topic, setNum) {
+        const results = [];
+        for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (!key.startsWith('ssc_attempt_')) continue;
+            try {
+                const data = JSON.parse(localStorage.getItem(key));
+                if (data.topic === topic && data.setNum === setNum) {
+                    results.push({ key, ...data });
+                }
+            } catch(e) {}
         }
+        results.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+        return results;
+    },
+
+    showAttemptsModal(topic, setNum, e) {
+        e && e.stopPropagation();
+        const modal = document.getElementById('attempts-modal');
+        const list = document.getElementById('attempts-list');
+        const attempts = this.getAttemptsForSet(topic, setNum);
+        if (attempts.length === 0) {
+            list.innerHTML = '<p style="color:var(--muted);font-size:0.85rem;text-align:center;padding:20px 0;">No attempts yet for this set.</p>';
+        } else {
+            list.innerHTML = attempts.map((a, idx) => {
+                let r = 0, w = 0, s = 0;
+                const qs = a.questions || [];
+                const ans = a.answers || {};
+                qs.forEach((q, qi) => {
+                    const u = ans[qi];
+                    if (u === undefined) s++;
+                    else if (u === q.correct) r++;
+                    else w++;
+                });
+                const score = ((r * 1) - (w * 0.33)).toFixed(2);
+                const scoreColor = score >= 0 ? 'var(--succ)' : 'var(--err)';
+
+                const qRows = qs.map((q, qi) => {
+                    const u = ans[qi];
+                    let statusCls = 'skipped', statusLabel = '⬜ Skipped', borderColor = '#94a3b8';
+                    if (u === undefined) { statusCls='skipped'; statusLabel='⬜ Skipped'; borderColor='#94a3b8'; }
+                    else if (u === q.correct) { statusCls='correct'; statusLabel='✓ Correct'; borderColor='#059669'; }
+                    else { statusCls='wrong'; statusLabel='✗ Wrong'; borderColor='#dc2626'; }
+
+                    const optHtml = (q.opts || []).map((opt, oi) => {
+                        let cls = 'neutral';
+                        if (oi === q.correct && u !== undefined && oi === u) cls = 'correct';
+                        else if (oi === q.correct) cls = 'correct';
+                        else if (u !== undefined && oi === u) cls = 'wrong';
+                        const mark = oi === q.correct ? ' ✓' : (u !== undefined && oi === u ? ' ✗' : '');
+                        return `<div class="aq-opt ${cls}">${String.fromCharCode(65+oi)}. ${opt}${mark}</div>`;
+                    }).join('');
+
+                    return `<div class="attempt-q" style="border-left-color:${borderColor}">
+                        <div class="aq-status" style="color:${borderColor}">${statusLabel} — Q.${qi+1}</div>
+                        <div class="aq-text">${q.q}</div>
+                        <div class="aq-opts">${optHtml}</div>
+                    </div>`;
+                }).join('');
+
+                return `<div class="attempt-item">
+                    <div class="attempt-header" onclick="this.nextElementSibling.classList.toggle('open')">
+                        <span class="attempt-badge">ATTEMPT ${idx + 1}</span>
+                        <span class="attempt-meta">${a.date || ''}</span>
+                        <span class="attempt-score" style="color:${scoreColor}">Score: ${score} &nbsp;✓${r} ✗${w} ⬜${s}</span>
+                        <span style="font-size:0.75rem;color:var(--muted);">▼</span>
+                    </div>
+                    <div class="attempt-body">${qRows}</div>
+                </div>`;
+            }).join('');
+        }
+        modal.classList.add('open');
+    },
+
+    closeAttemptsModal() {
+        document.getElementById('attempts-modal').classList.remove('open');
+    },
+
+    exitToSets() {
+        app.showConfirm(
+            '↩ EXIT TO SETS?',
+            'This will quit the test. Your progress will be lost.',
+            () => {
+                clearInterval(this.timerInt);
+                document.getElementById('timer').style.display = 'none';
+                this.switchScreen('screen-sets');
+            }
+        );
     },
 
     showHome() {
@@ -32630,7 +32856,40 @@ const app = {
     }
 };
 
+// ── Mobile back button / browser back interception ──
+history.pushState({ page: 'home' }, '');
+
+window.addEventListener('popstate', function(e) {
+    const testScreen = document.getElementById('screen-test');
+    if (testScreen && testScreen.classList.contains('active')) {
+        // Push state back so back button fires again if user says No
+        history.pushState({ page: 'test' }, '');
+        app.showConfirm(
+            '🚪 CLOSE MOCK TEST?',
+            'Do you want to exit the mock test? Your progress will be lost.',
+            () => {
+                clearInterval(app.timerInt);
+                document.getElementById('timer').style.display = 'none';
+                document.getElementById('pause-btn').style.display = 'none';
+                document.getElementById('theme-toggle-wrap').style.display = '';
+                const pb = document.getElementById('palette-toggle-btn');
+                if (pb) pb.style.display = 'none';
+                document.getElementById('pause-overlay').classList.remove('active');
+                app.showHome();
+                // Go back in history properly
+                history.go(-1);
+            }
+        );
+    }
+});
+
 app.init();
+// Push a test state when test starts so popstate fires
+const _origStartTest = app.startTest.bind(app);
+app.startTest = function(qs, topic, setNum) {
+    _origStartTest(qs, topic, setNum);
+    history.pushState({ page: 'test' }, '');
+};
 </script>
 
 </body>
