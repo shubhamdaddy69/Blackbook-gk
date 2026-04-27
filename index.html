@@ -111,7 +111,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .app-header {
     background: var(--surface); border-bottom: 2px solid var(--border); padding: 15px 20px;
     display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(2, 132, 199, 0.1);
+    position: relative; box-shadow: 0 2px 10px rgba(2, 132, 199, 0.1);
 }
 .app-header h1 { font-family: 'Orbitron'; font-size: 0.85rem; color: var(--primary); letter-spacing: 2px; cursor: pointer; }
 #pause-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); z-index:9999; flex-direction:column; align-items:center; justify-content:center; gap:20px; }
@@ -120,7 +120,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     #pause-overlay p { color:#94a3b8; font-size:0.9rem; margin:0; }
     #resume-btn { background:#0284c7; color:#fff; border:none; padding:14px 40px; border-radius:10px; font-family:Orbitron; font-size:1rem; font-weight:bold; cursor:pointer; }
     #pause-btn { background:#f59e0b; color:#fff; border:none; padding:6px 14px; border-radius:8px; font-family:Orbitron; font-size:0.65rem; font-weight:bold; cursor:pointer; }
-    #timer { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; background: var(--primary); padding: 6px 14px; border-radius: 8px; }
+    #timer { font-family: 'Orbitron'; font-size: 1.1rem; color: #fff; background: var(--primary); padding: 6px 14px; border-radius: 8px; min-width: 90px; text-align: center; display: inline-block; }
 
 .screen { display: none; padding: 20px; max-width: 1000px; margin: 0 auto; }
 .screen.active { display: block; }
@@ -221,6 +221,27 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .opt-row.is-both { background: #d1fae5; border-color: #6ee7b7; color: #065f46; font-weight: 600; }
 .opt-row.neutral { background: #f8fafc; color: var(--muted); }
 
+/* ── Smaller sub-cards on the Sets screen ── */
+#sets-container {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 12px;
+}
+#sets-container .topic-card {
+    padding: 14px 12px;
+    border-radius: 12px;
+}
+#sets-container .topic-card .card-icon {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+}
+#sets-container .topic-card h3 {
+    font-size: 0.78rem;
+}
+#sets-container .topic-card .card-meta {
+    font-size: 0.6rem;
+    margin-top: 4px;
+}
+
 </style>
 </head>
 <body>
@@ -239,7 +260,7 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
             <button class="theme-pill orig" id="pill-orig" onclick="app.setTheme('original')">☀ LIGHT</button>
             <button class="theme-pill dark inactive" id="pill-dark" onclick="app.setTheme('dark')">🌙 DARK</button>
         </div>
-        <div id="timer" style="display:none;">20:00</div>
+        <div id="timer" style="display:none;">30:00</div>
     </div>
 </div>
 
@@ -32196,21 +32217,17 @@ const app = {
             card.className = 'topic-card set-card';
             card.style.cssText = `background:linear-gradient(145deg,#ffffff,${bg}); border-color:${accent};`;
             card.innerHTML = `
-                <div style="width:48px;height:48px;border-radius:14px;background:${bg};border:2px solid ${accent};
-                    display:flex;align-items:center;justify-content:center;margin:0 auto 12px;
-                    font-family:'Orbitron';font-size:1.1rem;font-weight:700;color:${text};">${num}</div>
-                <h3 style="color:${text};">SET ${num}</h3>
-                <p class="card-meta">${chunk.length} Questions · 20 min</p>
-                <div style="margin-top:12px;background:${accent};border-radius:6px;padding:5px 10px;display:inline-block;">
-                    <span style="font-size:0.65rem;font-weight:700;color:${text};font-family:'Orbitron';">START ▶</span>
-                </div>`;
+                <div style="font-family:'Orbitron';font-size:0.75rem;font-weight:700;color:${text};line-height:1.5;text-align:center;">
+                    ${this.activeTopic}<br>Set ${num}
+                </div>
+                <p class="card-meta" style="margin-top:7px;">${chunk.length} Qs · 30 min</p>`;
             card.onclick = () => this.startTest(chunk, this.activeTopic, num);
             cont.appendChild(card);
         }
     },
 
     startTest(qs, topic, setNum) {
-        this.testQs = qs; this.userAns = {}; this.idx = 0; this.timer = 1200;
+        this.testQs = qs; this.userAns = {}; this.idx = 0; this.timer = 1800;
         this.activeSet = setNum || null;
         this.activeTopic = topic || this.activeTopic;
         this.paletteVisible = true;
