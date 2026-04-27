@@ -32981,41 +32981,23 @@ const app = {
         const accuracy = qs.length>0 ? ((r/qs.length)*100).toFixed(1) : '0.0';
         const sc = parseFloat(score);
 
-        const origTitle = document.title;
-        document.title = 'ATTEMPT ' + (attemptIdx+1) + ' - ' + topic + ' Set ' + setNum;
-
-        let printStyle = document.getElementById('__print_style__');
-        if (!printStyle) { printStyle = document.createElement('style'); printStyle.id = '__print_style__'; document.head.appendChild(printStyle); }
-        printStyle.textContent = '@media print { @page { size: A4; margin: 12mm 10mm 12mm 10mm; } body > *:not(#__pdf_att_root__) { display: none !important; } #__pdf_att_root__ { display: block !important; } .pav { page-break-inside: avoid; break-inside: avoid; } } @media screen { #__pdf_att_root__ { display: none !important; } }';
-
         const now = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
 
-        let html = '';
-        html += '<div style="background:linear-gradient(135deg,#1e3a5f,#0284c7 60%,#38bdf8);padding:26px 22px 20px;margin-bottom:18px;">'
-              + '<div style="font-size:8px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.7);margin-bottom:4px;">BLACKBOOK GK BY SHUBHAM SIR</div>'
-              + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:3px;">ATTEMPT ' + (attemptIdx+1) + ' \u2014 DETAILED REPORT</div>'
-              + '<div style="font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;">Subject: <b>' + topic + '</b> &nbsp;|&nbsp; Set: <b>' + setNum + '</b> &nbsp;|&nbsp; ' + (a.date||now) + '</div>'
-              + '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
-
         var cards = [['Score',score,sc>=0?'#4ade80':'#f87171'],['Correct',r,'#4ade80'],['Wrong',w,'#f87171'],['Skipped',s,'#cbd5e1'],['Accuracy',accuracy+'%','#93c5fd'],['Total Qs',qs.length,'#fff']];
-        cards.forEach(function(c){ html += '<div style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:8px 16px;text-align:center;min-width:70px;"><div style="font-size:8px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">'+c[0]+'</div><div style="font-size:18px;font-weight:900;color:'+c[2]+';">'+c[1]+'</div></div>'; });
-        html += '</div></div>';
+        var cardsHtml = cards.map(function(c){
+            return '<div style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:8px 16px;text-align:center;min-width:70px;">'
+                 + '<div style="font-size:8px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">'+c[0]+'</div>'
+                 + '<div style="font-size:18px;font-weight:900;color:'+c[2]+';">'+c[1]+'</div></div>';
+        }).join('');
 
-        if (qs.length > 0) {
-            html += '<div style="display:flex;border-radius:6px;overflow:hidden;height:10px;margin-bottom:16px;background:#f1f5f9;">'
-                  + '<div style="width:'+(r/qs.length*100).toFixed(1)+'%;background:#059669;"></div>'
-                  + '<div style="width:'+(w/qs.length*100).toFixed(1)+'%;background:#dc2626;"></div>'
-                  + '<div style="width:'+(s/qs.length*100).toFixed(1)+'%;background:#94a3b8;"></div>'
-                  + '</div>';
-        }
+        var scoreBarHtml = qs.length > 0
+            ? '<div style="display:flex;border-radius:6px;overflow:hidden;height:10px;margin-bottom:16px;background:#f1f5f9;">'
+              + '<div style="width:'+(r/qs.length*100).toFixed(1)+'%;background:#059669;"></div>'
+              + '<div style="width:'+(w/qs.length*100).toFixed(1)+'%;background:#dc2626;"></div>'
+              + '<div style="width:'+(s/qs.length*100).toFixed(1)+'%;background:#94a3b8;"></div>'
+              + '</div>' : '';
 
-        html += '<div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;">'
-              + '<span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#d1fae5;display:inline-block;border:1px solid #059669;"></span>Correct Answer</span>'
-              + '<span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#fee2e2;display:inline-block;border:1px solid #dc2626;"></span>Your Wrong Answer</span>'
-              + '<span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#f8fafc;display:inline-block;border:1px solid #94a3b8;"></span>Other Options</span>'
-              + '</div>';
-
-        qs.forEach(function(q, qi) {
+        var questionsHtml = qs.map(function(q, qi) {
             var u = ans[qi];
             var sLabel, sBg, sColor, sBorder;
             if (u===undefined)      { sLabel='SKIPPED'; sBg='#f8fafc'; sColor='#64748b'; sBorder='#94a3b8'; }
@@ -33025,46 +33007,74 @@ const app = {
             var optsHtml = (q.opts||[]).map(function(opt,oi){
                 var isC=oi===q.correct, isU=u!==undefined&&oi===u;
                 var bg='transparent',col='#374151',fw='400',mk='';
-                if(isC&&isU){bg='#d1fae5';col='#065f46';fw='700';mk=' [CORRECT / YOUR ANS]';}
-                else if(isC){bg='#d1fae5';col='#065f46';fw='700';mk=' [CORRECT ANS]';}
-                else if(isU){bg='#fee2e2';col='#991b1b';fw='700';mk=' [YOUR ANS]';}
-                return '<div style="padding:4px 8px;border-radius:5px;background:'+bg+';color:'+col+';font-weight:'+fw+';font-size:11px;line-height:1.5;">'+String.fromCharCode(65+oi)+'. '+opt+mk+'</div>';
+                if(isC&&isU){bg='#d1fae5';col='#065f46';fw='700';mk=' ✓ YOUR ANSWER';}
+                else if(isC){bg='#d1fae5';col='#065f46';fw='700';mk=' ✓ CORRECT';}
+                else if(isU){bg='#fee2e2';col='#991b1b';fw='700';mk=' ✗ YOUR ANSWER';}
+                return '<div style="padding:6px 10px;border-radius:6px;background:'+bg+';color:'+col+';font-weight:'+fw+';font-size:13px;line-height:1.5;margin-bottom:4px;">'+String.fromCharCode(65+oi)+'. '+opt+mk+'</div>';
             }).join('');
 
-            html += '<div class="pav" style="background:'+sBg+';border:1px solid #e2e8f0;border-left:4px solid '+sBorder+';border-radius:10px;padding:11px 14px;margin-bottom:8px;">'
-                  + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">'
-                  + '<div style="min-width:24px;height:24px;border-radius:50%;background:'+sBorder+';color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(qi+1)+'</div>'
-                  + '<div style="flex:1;font-size:12px;font-weight:600;line-height:1.6;color:#0f172a;">'+q.q+'</div>'
-                  + '<div style="white-space:nowrap;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;background:'+sBg+';color:'+sColor+';border:1.5px solid '+sBorder+';letter-spacing:0.5px;">'+sLabel+'</div>'
-                  + '</div>'
-                  + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding-left:34px;margin-bottom:8px;">'+optsHtml+'</div>'
-                  + '<div style="display:flex;align-items:center;gap:14px;padding-left:34px;padding-top:7px;border-top:1px dashed #cbd5e1;flex-wrap:wrap;">'
-                  + '<span style="font-size:10.5px;font-weight:700;color:#059669;">Correct: '+String.fromCharCode(65+q.correct)+'</span>'
-                  + (u!==undefined&&u!==q.correct ? '<span style="font-size:10.5px;font-weight:700;color:#dc2626;">Your Ans: '+String.fromCharCode(65+u)+'</span>' : '')
-                  + (u===undefined ? '<span style="font-size:10.5px;color:#94a3b8;">Not attempted</span>' : '')
-                  + '</div>'
-                  + (q.exp ? '<div style="font-size:11px;color:#374151;background:#fffbeb;padding:7px 10px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:8px;line-height:1.6;"><b>Explanation:</b> '+q.exp+'</div>' : '')
-                  + '</div>';
-        });
+            return '<div style="background:'+sBg+';border:1px solid #e2e8f0;border-left:4px solid '+sBorder+';border-radius:12px;padding:14px 16px;margin-bottom:12px;page-break-inside:avoid;">'
+                 + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">'
+                 + '<div style="min-width:26px;height:26px;border-radius:50%;background:'+sBorder+';color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(qi+1)+'</div>'
+                 + '<div style="flex:1;font-size:14px;font-weight:600;line-height:1.6;color:#0f172a;">'+q.q+'</div>'
+                 + '<div style="white-space:nowrap;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;background:'+sBg+';color:'+sColor+';border:1.5px solid '+sBorder+';letter-spacing:0.5px;margin-left:8px;">'+sLabel+'</div>'
+                 + '</div>'
+                 + '<div style="padding-left:36px;margin-bottom:10px;">'+optsHtml+'</div>'
+                 + '<div style="display:flex;align-items:center;gap:16px;padding-left:36px;padding-top:8px;border-top:1px dashed #cbd5e1;flex-wrap:wrap;">'
+                 + '<span style="font-size:12px;font-weight:700;color:#059669;">✓ Correct: '+String.fromCharCode(65+q.correct)+'</span>'
+                 + (u!==undefined&&u!==q.correct ? '<span style="font-size:12px;font-weight:700;color:#dc2626;">✗ Your Ans: '+String.fromCharCode(65+u)+'</span>' : '')
+                 + (u===undefined ? '<span style="font-size:12px;color:#94a3b8;">Not attempted</span>' : '')
+                 + '</div>'
+                 + (q.exp ? '<div style="font-size:12px;color:#374151;background:#fffbeb;padding:8px 12px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:10px;margin-left:36px;line-height:1.6;"><b>💡 Explanation:</b> '+q.exp+'</div>' : '')
+                 + '</div>';
+        }).join('');
 
-        html += '<div style="text-align:center;margin-top:24px;padding:14px;border-top:2px solid #e2e8f0;color:#94a3b8;font-size:9.5px;letter-spacing:0.5px;">'
-              + 'BLACKBOOK GK BY SHUBHAM SIR &nbsp;|&nbsp; ' + topic + ' \u2014 Set ' + setNum + ', Attempt ' + (attemptIdx+1) + ' &nbsp;|&nbsp; Generated: ' + now
-              + '</div>';
+        var fullPage = '<!DOCTYPE html><html lang="en"><head>'
+            + '<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">'
+            + '<title>Attempt ' + (attemptIdx+1) + ' - ' + topic + ' Set ' + setNum + '</title>'
+            + '<style>'
+            + 'body{margin:0;padding:16px;font-family:Arial,sans-serif;background:#f0f7ff;color:#0f172a;}'
+            + '.container{max-width:800px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,0.10);}'
+            + '.print-btn{display:block;width:100%;padding:14px;background:linear-gradient(135deg,#0284c7,#38bdf8);color:#fff;border:none;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:1px;}'
+            + '.print-btn:hover{opacity:0.92;}'
+            + '.body-pad{padding:20px;}'
+            + '@media print{'
+            + '  body{background:#fff;padding:0;}'
+            + '  .container{box-shadow:none;border-radius:0;}'
+            + '  .print-btn{display:none !important;}'
+            + '  @page{size:A4;margin:12mm 10mm;}'
+            + '}'
+            + '@media(max-width:600px){'
+            + '  body{padding:8px;}'
+            + '  .body-pad{padding:12px;}'
+            + '}'
+            + '</style></head><body>'
+            + '<div class="container">'
+            + '<button class="print-btn" onclick="window.print()">🖨️ SAVE / PRINT AS PDF</button>'
+            + '<div style="background:linear-gradient(135deg,#1e3a5f,#0284c7 60%,#38bdf8);padding:24px 20px 20px;">'
+            + '<div style="font-size:8px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.7);margin-bottom:4px;">BLACKBOOK GK BY SHUBHAM SIR</div>'
+            + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:3px;">ATTEMPT ' + (attemptIdx+1) + ' — DETAILED REPORT</div>'
+            + '<div style="font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;">Subject: <b>' + topic + '</b> &nbsp;|&nbsp; Set: <b>' + setNum + '</b> &nbsp;|&nbsp; ' + (a.date||now) + '</div>'
+            + '<div style="display:flex;gap:8px;flex-wrap:wrap;">' + cardsHtml + '</div>'
+            + '</div>'
+            + '<div class="body-pad">'
+            + scoreBarHtml
+            + '<div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;">'
+            + '<span style="font-size:11px;display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#d1fae5;display:inline-block;border:1px solid #059669;"></span>Correct Answer</span>'
+            + '<span style="font-size:11px;display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#fee2e2;display:inline-block;border:1px solid #dc2626;"></span>Your Wrong Answer</span>'
+            + '<span style="font-size:11px;display:flex;align-items:center;gap:5px;"><span style="width:14px;height:14px;border-radius:3px;background:#f8fafc;display:inline-block;border:1px solid #94a3b8;"></span>Other Options</span>'
+            + '</div>'
+            + questionsHtml
+            + '<div style="text-align:center;margin-top:20px;padding:12px;border-top:2px solid #e2e8f0;color:#94a3b8;font-size:10px;letter-spacing:0.5px;">'
+            + 'BLACKBOOK GK BY SHUBHAM SIR &nbsp;|&nbsp; ' + topic + ' — Set ' + setNum + ', Attempt ' + (attemptIdx+1) + ' &nbsp;|&nbsp; ' + now
+            + '</div>'
+            + '</div></div>'
+            + '</body></html>';
 
-        var screens = document.querySelectorAll('.screen,.app-header,#attempts-modal,#confirm-modal,#pause-overlay');
-        var saved = [];
-        screens.forEach(function(s){ saved.push({el:s,d:s.style.display}); s.style.display='none'; });
-        var tempDiv = document.createElement('div');
-        tempDiv.id = '__pdf_att_root__';
-        tempDiv.style.fontFamily = 'Arial,sans-serif';
-        tempDiv.style.color = '#0f172a';
-        tempDiv.style.background = '#fff';
-        tempDiv.innerHTML = html;
-        document.body.appendChild(tempDiv);
-        window.print();
-        document.title = origTitle;
-        document.body.removeChild(tempDiv);
-        saved.forEach(function(x){ x.el.style.display=x.d; });
+        var blob = new Blob([fullPage], {type: 'text/html'});
+        var url = URL.createObjectURL(blob);
+        window.open(url, '_blank');
+        setTimeout(function(){ URL.revokeObjectURL(url); }, 60000);
     },
 
 
