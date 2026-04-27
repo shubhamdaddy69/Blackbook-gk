@@ -32990,7 +32990,7 @@ const app = {
 
         const now = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
 
-        let html = '<div id="__pdf_att_root__" style="font-family:Arial,sans-serif;color:#0f172a;background:#fff;">';
+        let html = '';
         html += '<div style="background:linear-gradient(135deg,#1e3a5f,#0284c7 60%,#38bdf8);padding:26px 22px 20px;margin-bottom:18px;">'
               + '<div style="font-size:8px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.7);margin-bottom:4px;">BLACKBOOK GK BY SHUBHAM SIR</div>'
               + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:3px;">ATTEMPT ' + (attemptIdx+1) + ' \u2014 DETAILED REPORT</div>'
@@ -33049,12 +33049,16 @@ const app = {
 
         html += '<div style="text-align:center;margin-top:24px;padding:14px;border-top:2px solid #e2e8f0;color:#94a3b8;font-size:9.5px;letter-spacing:0.5px;">'
               + 'BLACKBOOK GK BY SHUBHAM SIR &nbsp;|&nbsp; ' + topic + ' \u2014 Set ' + setNum + ', Attempt ' + (attemptIdx+1) + ' &nbsp;|&nbsp; Generated: ' + now
-              + '</div></div>';
+              + '</div>';
 
         var screens = document.querySelectorAll('.screen,.app-header,#attempts-modal,#confirm-modal,#pause-overlay');
         var saved = [];
         screens.forEach(function(s){ saved.push({el:s,d:s.style.display}); s.style.display='none'; });
         var tempDiv = document.createElement('div');
+        tempDiv.id = '__pdf_att_root__';
+        tempDiv.style.fontFamily = 'Arial,sans-serif';
+        tempDiv.style.color = '#0f172a';
+        tempDiv.style.background = '#fff';
         tempDiv.innerHTML = html;
         document.body.appendChild(tempDiv);
         window.print();
