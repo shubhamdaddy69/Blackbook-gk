@@ -32766,6 +32766,8 @@ const app = {
 
     showAttemptsModal(topic, setNum, e) {
         e && e.stopPropagation();
+        this._attemptsModalTopic = topic;
+        this._attemptsModalSetNum = setNum;
         const modal = document.getElementById('attempts-modal');
         const list = document.getElementById('attempts-list');
         const attempts = this.getAttemptsForSet(topic, setNum);
@@ -32810,7 +32812,7 @@ const app = {
 
                 return `<div class="attempt-item">
                     <div class="attempt-header" onclick="this.nextElementSibling.classList.toggle('open')">
-                        <span class="attempt-badge">ATTEMPT ${idx + 1}</span>
+                        <span class="attempt-badge" onclick="event.stopPropagation();app.downloadSingleAttemptPDF(${idx})" title="Click to download PDF for this attempt" style="cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;">ATTEMPT ${idx + 1}</span>
                         <span class="attempt-meta">${a.date || ''}</span>
                         <span class="attempt-score" style="color:${scoreColor}">Score: ${score} &nbsp;✓${r} ✗${w} ⬜${s}</span>
                         <span style="font-size:0.75rem;color:var(--muted);">▼</span>
@@ -32825,6 +32827,242 @@ const app = {
     closeAttemptsModal() {
         document.getElementById('attempts-modal').classList.remove('open');
     },
+
+    downloadAttemptsPDF() {
+        const topic = this._attemptsModalTopic || '';
+        const setNum = this._attemptsModalSetNum || '';
+        const attempts = this.getAttemptsForSet(topic, setNum);
+        if (!attempts || attempts.length === 0) { alert('No attempts to export.'); return; }
+
+        const origTitle = document.title;
+        document.title = 'PAST ATTEMPTS - ' + topic + ' Set ' + setNum;
+
+        let printStyle = document.getElementById('__print_style__');
+        if (!printStyle) { printStyle = document.createElement('style'); printStyle.id = '__print_style__'; document.head.appendChild(printStyle); }
+        printStyle.textContent = '@media print { @page { size: A4; margin: 12mm 10mm 12mm 10mm; } body > *:not(#__pdf_att_root__) { display: none !important; } #__pdf_att_root__ { display: block !important; } .pab { page-break-before: always; break-before: page; } .pav { page-break-inside: avoid; break-inside: avoid; } } @media screen { #__pdf_att_root__ { display: none !important; } }';
+
+        const now = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+
+        // Build summary stats for each attempt
+        const attemptStats = attempts.map(a => {
+            let r=0, w=0, s=0;
+            const qs = a.questions||[], ans = a.answers||{};
+            qs.forEach((q,qi)=>{ const u=ans[qi]; if(u===undefined)s++; else if(u===q.correct)r++; else w++; });
+            const score = ((r*1)-(w*0.33)).toFixed(2);
+            const accuracy = qs.length>0 ? ((r/qs.length)*100).toFixed(1) : '0.0';
+            return { r, w, s, score, accuracy, qs, ans };
+        });
+
+        // COVER HEADER
+        let html = '<div id="__pdf_att_root__" style="font-family:Arial,sans-serif;color:#0f172a;background:#fff;">';
+
+        html += '<div style="background:linear-gradient(135deg,#1e3a5f,#0284c7 60%,#38bdf8);padding:26px 22px 20px;margin-bottom:18px;">'
+              + '<div style="font-size:8px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.7);margin-bottom:4px;">BLACKBOOK GK BY SHUBHAM SIR</div>'
+              + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:3px;">PAST ATTEMPTS REPORT</div>'
+              + '<div style="font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;">Subject: <b>' + topic + '</b> &nbsp;|&nbsp; Set: <b>' + setNum + '</b> &nbsp;|&nbsp; ' + now + '</div>'
+              + '<div style="display:flex;gap:10px;flex-wrap:wrap;">'
+              + '<div style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:8px 14px;text-align:center;min-width:70px;">'
+              + '<div style="font-size:8px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Attempts</div>'
+              + '<div style="font-size:20px;font-weight:900;color:#fff;">' + attempts.length + '</div></div>';
+
+        attemptStats.forEach((st, idx) => {
+            const sc = parseFloat(st.score);
+            const col = sc >= 0 ? '#4ade80' : '#f87171';
+            html += '<div style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:8px 14px;text-align:center;min-width:70px;">'
+                  + '<div style="font-size:8px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:2px;">Attempt ' + (idx+1) + '</div>'
+                  + '<div style="font-size:16px;font-weight:900;color:' + col + ';">' + st.score + '</div>'
+                  + '<div style="font-size:8px;color:rgba(255,255,255,0.65);">' + st.accuracy + '% accuracy</div></div>';
+        });
+        html += '</div></div>';
+
+        // EACH ATTEMPT
+        attempts.forEach((a, idx) => {
+            const st = attemptStats[idx];
+            const sc = parseFloat(st.score);
+            const scoreColor = sc >= 0 ? '#059669' : '#dc2626';
+            const scoreBg   = sc >= 0 ? '#ecfdf5' : '#fef2f2';
+            const scoreBdr  = sc >= 0 ? '#6ee7b7' : '#fca5a5';
+            const totQ = st.qs.length;
+
+            if (idx > 0) html += '<div class="pab"></div>';
+
+            // Attempt header
+            html += '<div class="pav" style="margin-bottom:14px;">'
+                  + '<div style="display:flex;align-items:stretch;border-radius:12px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,0.1);margin-bottom:10px;">'
+                  + '<div style="background:#1e3a5f;color:#fff;padding:12px 18px;font-size:13px;font-weight:900;letter-spacing:1px;display:flex;align-items:center;">ATTEMPT ' + (idx+1) + '</div>'
+                  + '<div style="background:#f0f7ff;flex:1;padding:10px 14px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">'
+                  + '<span style="font-size:10.5px;color:#475569;">Date: ' + (a.date||'N/A') + '</span>'
+                  + '<span style="font-size:10.5px;color:#475569;">' + totQ + ' Questions</span>'
+                  + '<span style="font-size:10.5px;color:#059669;font-weight:700;">Correct: ' + st.r + '</span>'
+                  + '<span style="font-size:10.5px;color:#dc2626;font-weight:700;">Wrong: ' + st.w + '</span>'
+                  + '<span style="font-size:10.5px;color:#64748b;font-weight:700;">Skipped: ' + st.s + '</span>'
+                  + '<span style="font-size:10.5px;color:#0284c7;font-weight:700;">Accuracy: ' + st.accuracy + '%</span>'
+                  + '</div>'
+                  + '<div style="background:' + scoreBg + ';border:2px solid ' + scoreBdr + ';color:' + scoreColor + ';padding:10px 16px;font-size:15px;font-weight:900;font-family:monospace;display:flex;align-items:center;">Score: ' + st.score + '</div>'
+                  + '</div>';
+
+            // Score bar
+            if (totQ > 0) {
+                html += '<div style="display:flex;border-radius:6px;overflow:hidden;height:8px;margin-bottom:14px;background:#f1f5f9;">'
+                      + '<div style="width:' + (st.r/totQ*100).toFixed(1) + '%;background:#059669;"></div>'
+                      + '<div style="width:' + (st.w/totQ*100).toFixed(1) + '%;background:#dc2626;"></div>'
+                      + '<div style="width:' + (st.s/totQ*100).toFixed(1) + '%;background:#94a3b8;"></div>'
+                      + '</div>';
+            }
+            html += '</div>'; // end attempt header wrapper
+
+            // Questions
+            st.qs.forEach((q, qi) => {
+                const u = st.ans[qi];
+                let sLabel, sBg, sColor, sBorder, sIcon;
+                if (u === undefined) {
+                    sLabel='SKIPPED'; sBg='#f8fafc'; sColor='#64748b'; sBorder='#94a3b8'; sIcon='';
+                } else if (u === q.correct) {
+                    sLabel='CORRECT'; sBg='#f0fdf4'; sColor='#059669'; sBorder='#059669'; sIcon='';
+                } else {
+                    sLabel='WRONG'; sBg='#fef2f2'; sColor='#dc2626'; sBorder='#dc2626'; sIcon='';
+                }
+
+                const optsHtml = (q.opts||[]).map((opt,oi) => {
+                    const isC = oi===q.correct, isU = u!==undefined && oi===u;
+                    let bg='transparent', col='#374151', fw='400', mk='';
+                    if (isC && isU) { bg='#d1fae5'; col='#065f46'; fw='700'; mk=' [CORRECT / YOUR ANS]'; }
+                    else if (isC) { bg='#d1fae5'; col='#065f46'; fw='700'; mk=' [CORRECT ANS]'; }
+                    else if (isU) { bg='#fee2e2'; col='#991b1b'; fw='700'; mk=' [YOUR ANS]'; }
+                    return '<div style="padding:4px 8px;border-radius:5px;background:' + bg + ';color:' + col + ';font-weight:' + fw + ';font-size:11px;line-height:1.5;">' + String.fromCharCode(65+oi) + '. ' + opt + mk + '</div>';
+                }).join('');
+
+                html += '<div class="pav" style="background:' + sBg + ';border:1px solid #e2e8f0;border-left:4px solid ' + sBorder + ';border-radius:10px;padding:11px 14px;margin-bottom:8px;">'
+                      + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">'
+                      + '<div style="min-width:24px;height:24px;border-radius:50%;background:' + sBorder + ';color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (qi+1) + '</div>'
+                      + '<div style="flex:1;font-size:12px;font-weight:600;line-height:1.6;color:#0f172a;">' + q.q + '</div>'
+                      + '<div style="white-space:nowrap;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;background:' + sBg + ';color:' + sColor + ';border:1.5px solid ' + sBorder + ';letter-spacing:0.5px;">' + sLabel + '</div>'
+                      + '</div>'
+                      + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding-left:34px;margin-bottom:8px;">' + optsHtml + '</div>'
+                      + '<div style="display:flex;align-items:center;gap:14px;padding-left:34px;padding-top:7px;border-top:1px dashed #cbd5e1;flex-wrap:wrap;">'
+                      + '<span style="font-size:10.5px;font-weight:700;color:#059669;">Correct: ' + String.fromCharCode(65+q.correct) + '</span>'
+                      + (u!==undefined && u!==q.correct ? '<span style="font-size:10.5px;font-weight:700;color:#dc2626;">Your Ans: ' + String.fromCharCode(65+u) + '</span>' : '')
+                      + (u===undefined ? '<span style="font-size:10.5px;color:#94a3b8;">Not attempted</span>' : '')
+                      + '</div>'
+                      + (q.exp ? '<div style="font-size:11px;color:#374151;background:#fffbeb;padding:7px 10px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:8px;line-height:1.6;"><b>Explanation:</b> ' + q.exp + '</div>' : '')
+                      + '</div>';
+            });
+        });
+
+        // Footer
+        html += '<div style="text-align:center;margin-top:24px;padding:14px;border-top:2px solid #e2e8f0;color:#94a3b8;font-size:9.5px;letter-spacing:0.5px;">'
+              + 'BLACKBOOK GK BY SHUBHAM SIR &nbsp;|&nbsp; ' + topic + ' — Set ' + setNum + ' &nbsp;|&nbsp; Generated: ' + now
+              + '</div></div>';
+
+        const screens = document.querySelectorAll('.screen,.app-header,#attempts-modal,#confirm-modal,#pause-overlay');
+        const saved = [];
+        screens.forEach(s => { saved.push({ el:s, d:s.style.display }); s.style.display='none'; });
+
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        document.body.appendChild(tempDiv);
+        window.print();
+        document.title = origTitle;
+        document.body.removeChild(tempDiv);
+        saved.forEach(({el,d}) => { el.style.display=d; });
+    },
+
+    downloadSingleAttemptPDF(attemptIdx) {
+        const topic = this._attemptsModalTopic || '';
+        const setNum = this._attemptsModalSetNum || '';
+        const attempts = this.getAttemptsForSet(topic, setNum);
+        if (!attempts || !attempts[attemptIdx]) { alert('Attempt not found.'); return; }
+
+        const a = attempts[attemptIdx];
+        const qs = a.questions || [], ans = a.answers || {};
+        let r=0, w=0, s=0;
+        qs.forEach((q,qi) => { const u=ans[qi]; if(u===undefined)s++; else if(u===q.correct)r++; else w++; });
+        const score = ((r*1)-(w*0.33)).toFixed(2);
+        const accuracy = qs.length>0 ? ((r/qs.length)*100).toFixed(1) : '0.0';
+        const sc = parseFloat(score);
+
+        const origTitle = document.title;
+        document.title = 'ATTEMPT ' + (attemptIdx+1) + ' - ' + topic + ' Set ' + setNum;
+
+        let printStyle = document.getElementById('__print_style__');
+        if (!printStyle) { printStyle = document.createElement('style'); printStyle.id = '__print_style__'; document.head.appendChild(printStyle); }
+        printStyle.textContent = '@media print { @page { size: A4; margin: 12mm 10mm 12mm 10mm; } body > *:not(#__pdf_att_root__) { display: none !important; } #__pdf_att_root__ { display: block !important; } .pav { page-break-inside: avoid; break-inside: avoid; } } @media screen { #__pdf_att_root__ { display: none !important; } }';
+
+        const now = new Date().toLocaleString('en-IN', { day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit', hour12:true });
+
+        let html = '<div id="__pdf_att_root__" style="font-family:Arial,sans-serif;color:#0f172a;background:#fff;">';
+        html += '<div style="background:linear-gradient(135deg,#1e3a5f,#0284c7 60%,#38bdf8);padding:26px 22px 20px;margin-bottom:18px;">'
+              + '<div style="font-size:8px;font-weight:700;letter-spacing:3px;color:rgba(255,255,255,0.7);margin-bottom:4px;">BLACKBOOK GK BY SHUBHAM SIR</div>'
+              + '<div style="font-size:20px;font-weight:900;color:#fff;margin-bottom:3px;">ATTEMPT ' + (attemptIdx+1) + ' \u2014 DETAILED REPORT</div>'
+              + '<div style="font-size:12px;color:rgba(255,255,255,0.85);margin-bottom:14px;">Subject: <b>' + topic + '</b> &nbsp;|&nbsp; Set: <b>' + setNum + '</b> &nbsp;|&nbsp; ' + (a.date||now) + '</div>'
+              + '<div style="display:flex;gap:10px;flex-wrap:wrap;">';
+
+        var cards = [['Score',score,sc>=0?'#4ade80':'#f87171'],['Correct',r,'#4ade80'],['Wrong',w,'#f87171'],['Skipped',s,'#cbd5e1'],['Accuracy',accuracy+'%','#93c5fd'],['Total Qs',qs.length,'#fff']];
+        cards.forEach(function(c){ html += '<div style="background:rgba(255,255,255,0.18);border:1px solid rgba(255,255,255,0.3);border-radius:10px;padding:8px 16px;text-align:center;min-width:70px;"><div style="font-size:8px;color:rgba(255,255,255,0.7);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;">'+c[0]+'</div><div style="font-size:18px;font-weight:900;color:'+c[2]+';">'+c[1]+'</div></div>'; });
+        html += '</div></div>';
+
+        if (qs.length > 0) {
+            html += '<div style="display:flex;border-radius:6px;overflow:hidden;height:10px;margin-bottom:16px;background:#f1f5f9;">'
+                  + '<div style="width:'+(r/qs.length*100).toFixed(1)+'%;background:#059669;"></div>'
+                  + '<div style="width:'+(w/qs.length*100).toFixed(1)+'%;background:#dc2626;"></div>'
+                  + '<div style="width:'+(s/qs.length*100).toFixed(1)+'%;background:#94a3b8;"></div>'
+                  + '</div>';
+        }
+
+        html += '<div style="display:flex;gap:14px;margin-bottom:16px;flex-wrap:wrap;">'
+              + '<span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#d1fae5;display:inline-block;border:1px solid #059669;"></span>Correct Answer</span>'
+              + '<span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#fee2e2;display:inline-block;border:1px solid #dc2626;"></span>Your Wrong Answer</span>'
+              + '<span style="font-size:10px;display:flex;align-items:center;gap:5px;"><span style="width:12px;height:12px;border-radius:3px;background:#f8fafc;display:inline-block;border:1px solid #94a3b8;"></span>Other Options</span>'
+              + '</div>';
+
+        qs.forEach(function(q, qi) {
+            var u = ans[qi];
+            var sLabel, sBg, sColor, sBorder;
+            if (u===undefined)      { sLabel='SKIPPED'; sBg='#f8fafc'; sColor='#64748b'; sBorder='#94a3b8'; }
+            else if (u===q.correct) { sLabel='CORRECT'; sBg='#f0fdf4'; sColor='#059669'; sBorder='#059669'; }
+            else                    { sLabel='WRONG';   sBg='#fef2f2'; sColor='#dc2626'; sBorder='#dc2626'; }
+
+            var optsHtml = (q.opts||[]).map(function(opt,oi){
+                var isC=oi===q.correct, isU=u!==undefined&&oi===u;
+                var bg='transparent',col='#374151',fw='400',mk='';
+                if(isC&&isU){bg='#d1fae5';col='#065f46';fw='700';mk=' [CORRECT / YOUR ANS]';}
+                else if(isC){bg='#d1fae5';col='#065f46';fw='700';mk=' [CORRECT ANS]';}
+                else if(isU){bg='#fee2e2';col='#991b1b';fw='700';mk=' [YOUR ANS]';}
+                return '<div style="padding:4px 8px;border-radius:5px;background:'+bg+';color:'+col+';font-weight:'+fw+';font-size:11px;line-height:1.5;">'+String.fromCharCode(65+oi)+'. '+opt+mk+'</div>';
+            }).join('');
+
+            html += '<div class="pav" style="background:'+sBg+';border:1px solid #e2e8f0;border-left:4px solid '+sBorder+';border-radius:10px;padding:11px 14px;margin-bottom:8px;">'
+                  + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">'
+                  + '<div style="min-width:24px;height:24px;border-radius:50%;background:'+sBorder+';color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(qi+1)+'</div>'
+                  + '<div style="flex:1;font-size:12px;font-weight:600;line-height:1.6;color:#0f172a;">'+q.q+'</div>'
+                  + '<div style="white-space:nowrap;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;background:'+sBg+';color:'+sColor+';border:1.5px solid '+sBorder+';letter-spacing:0.5px;">'+sLabel+'</div>'
+                  + '</div>'
+                  + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding-left:34px;margin-bottom:8px;">'+optsHtml+'</div>'
+                  + '<div style="display:flex;align-items:center;gap:14px;padding-left:34px;padding-top:7px;border-top:1px dashed #cbd5e1;flex-wrap:wrap;">'
+                  + '<span style="font-size:10.5px;font-weight:700;color:#059669;">Correct: '+String.fromCharCode(65+q.correct)+'</span>'
+                  + (u!==undefined&&u!==q.correct ? '<span style="font-size:10.5px;font-weight:700;color:#dc2626;">Your Ans: '+String.fromCharCode(65+u)+'</span>' : '')
+                  + (u===undefined ? '<span style="font-size:10.5px;color:#94a3b8;">Not attempted</span>' : '')
+                  + '</div>'
+                  + (q.exp ? '<div style="font-size:11px;color:#374151;background:#fffbeb;padding:7px 10px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:8px;line-height:1.6;"><b>Explanation:</b> '+q.exp+'</div>' : '')
+                  + '</div>';
+        });
+
+        html += '<div style="text-align:center;margin-top:24px;padding:14px;border-top:2px solid #e2e8f0;color:#94a3b8;font-size:9.5px;letter-spacing:0.5px;">'
+              + 'BLACKBOOK GK BY SHUBHAM SIR &nbsp;|&nbsp; ' + topic + ' \u2014 Set ' + setNum + ', Attempt ' + (attemptIdx+1) + ' &nbsp;|&nbsp; Generated: ' + now
+              + '</div></div>';
+
+        var screens = document.querySelectorAll('.screen,.app-header,#attempts-modal,#confirm-modal,#pause-overlay');
+        var saved = [];
+        screens.forEach(function(s){ saved.push({el:s,d:s.style.display}); s.style.display='none'; });
+        var tempDiv = document.createElement('div');
+        tempDiv.innerHTML = html;
+        document.body.appendChild(tempDiv);
+        window.print();
+        document.title = origTitle;
+        document.body.removeChild(tempDiv);
+        saved.forEach(function(x){ x.el.style.display=x.d; });
+    },
+
 
     exitToSets() {
         app.showConfirm(
