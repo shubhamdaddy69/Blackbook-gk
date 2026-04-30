@@ -48,6 +48,7 @@
     body.dark-theme #score-card [style*="background:#d1fae5"] { background: rgba(52,211,153,0.15) !important; color: #34d399 !important; border-color: rgba(52,211,153,0.4) !important; }
     body.dark-theme #score-card [style*="background:#fee2e2"] { background: rgba(248,113,113,0.15) !important; color: #f87171 !important; border-color: rgba(248,113,113,0.4) !important; }
     body.dark-theme .opt-btn { background: #2a2a2a; color: var(--text); }
+    body.dark-theme .opt-btn .opt-radio { border-color: #555; }
     body.dark-theme .opt-btn.unlocked:hover { background: #1a3045; }
     body.dark-theme #timer { background: #0369a1; }
     body.dark-theme .app-header { box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
@@ -105,9 +106,11 @@
     body.dark-theme .opt-row.is-user { background: rgba(248,113,113,0.12); border-color: #f87171; color: #f87171; }
     body.dark-theme .opt-row.is-both { background: rgba(52,211,153,0.12); border-color: #34d399; color: #34d399; }
     body.dark-theme .opt-row.neutral { background: rgba(255,255,255,0.03); color: #64748b; }
+    body.dark-theme .sol-box.correct { background: rgba(52,211,153,0.05) !important; }
+    body.dark-theme .sol-box.wrong { background: rgba(248,113,113,0.05) !important; }
     body.dark-theme .opt-btn.correct { background: rgba(52,211,153,0.12) !important; border-color: #34d399 !important; color: #34d399 !important; }
     body.dark-theme .opt-btn.wrong { background: rgba(248,113,113,0.12) !important; border-color: #f87171 !important; color: #f87171 !important; }
-    body.dark-theme .opt-btn.selected { background: rgba(168,85,247,0.15) !important; border-color: #a855f7 !important; color: #e879f9 !important; }
+    body.dark-theme .opt-btn.selected { background: rgba(56,189,248,0.12) !important; border-color: var(--primary) !important; }
 
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-serif; min-height: 100vh; padding-bottom: 50px; }
@@ -160,22 +163,144 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .topic-card .card-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
 .topic-card .card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
 
-.q-card { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 25px; margin-bottom: 15px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
+.q-card { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 22px 22px 18px; margin-bottom: 12px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 .bookmark-btn { position: absolute; right: 20px; top: 20px; font-size: 1.5rem; cursor: pointer; color: #cbd5e1; transition: 0.2s; }
 .bookmark-btn.active { color: #f59e0b; }
 
-.opt-btn {
-    display: block; width: 100%; text-align: left; padding: 14px 18px;
-    background: #f1f5f9; border: 1px solid var(--border); border-radius: 10px;
-    margin-bottom: 8px; font-size: 0.95rem; transition: 0.2s; color: var(--text);
+/* ── Question text ── */
+#q-text {
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.75;
+    color: var(--text);
 }
+#q-text .q-num {
+    font-weight: 800;
+    color: var(--primary);
+    font-size: 0.82rem;
+    display: inline-block;
+    margin-right: 4px;
+}
+/* Statement blocks inside question */
+.stmt-block {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    background: #f0f7ff;
+    border-left: 3px solid var(--sky);
+    border-radius: 0 8px 8px 0;
+    padding: 8px 12px;
+    margin-bottom: 7px;
+    line-height: 1.6;
+}
+body.dark-theme .stmt-block { background: rgba(56,189,248,0.07); border-left-color: var(--sky); }
+.stmt-label {
+    font-weight: 800;
+    color: var(--primary);
+    white-space: nowrap;
+    font-size: 0.82rem;
+    min-width: 80px;
+    padding-top: 1px;
+}
+.stmt-text { font-size: 0.93rem; color: var(--text); }
+
+/* Match the Following table */
+.match-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 8px;
+    font-size: 0.9rem;
+}
+.match-table th {
+    padding: 8px 12px;
+    font-size: 0.78rem;
+    text-align: left;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+.match-table th:first-child { background: #dbeafe; color: #1d4ed8; border: 1px solid #bfdbfe; }
+.match-table th:last-child { background: #ede9fe; color: #6d28d9; border: 1px solid #ddd6fe; }
+.match-table td { padding: 7px 12px; border: 1px solid #e2e8f0; font-size: 0.88rem; vertical-align: top; line-height: 1.5; }
+.match-table tr:nth-child(odd) td:first-child { background: #f8faff; }
+.match-table tr:nth-child(even) td:first-child { background: #f0f7ff; }
+.match-table tr:nth-child(odd) td:last-child { background: #fdf8ff; }
+.match-table tr:nth-child(even) td:last-child { background: #faf5ff; }
+body.dark-theme .match-table th:first-child { background: rgba(56,189,248,0.15); color: #7dd3fc; border-color: rgba(56,189,248,0.2); }
+body.dark-theme .match-table th:last-child { background: rgba(167,139,250,0.15); color: #c4b5fd; border-color: rgba(167,139,250,0.2); }
+body.dark-theme .match-table td { border-color: #333; }
+body.dark-theme .match-table tr:nth-child(odd) td:first-child { background: rgba(56,189,248,0.04); }
+body.dark-theme .match-table tr:nth-child(even) td:first-child { background: rgba(56,189,248,0.08); }
+body.dark-theme .match-table tr:nth-child(odd) td:last-child { background: rgba(167,139,250,0.04); }
+body.dark-theme .match-table tr:nth-child(even) td:last-child { background: rgba(167,139,250,0.08); }
+
+/* ── Options – radio-style ── */
+.opt-btn {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+    text-align: left;
+    padding: 12px 15px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    margin-bottom: 9px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    transition: all 0.18s;
+    color: var(--text);
+    line-height: 1.5;
+}
+.opt-btn .opt-radio {
+    width: 19px;
+    height: 19px;
+    border-radius: 50%;
+    border: 2px solid #94a3b8;
+    flex-shrink: 0;
+    margin-top: 2px;
+    transition: all 0.18s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.opt-btn .opt-letter {
+    font-weight: 800;
+    color: var(--muted);
+    font-size: 0.85rem;
+    flex-shrink: 0;
+    min-width: 18px;
+    margin-top: 1px;
+}
+.opt-btn .opt-text { flex: 1; }
 .opt-btn.locked { cursor: not-allowed; }
 .opt-btn.unlocked { cursor: pointer; }
 .opt-btn.unlocked:hover { background: #e0f2fe; border-color: var(--sky); }
-.opt-btn.selected { background: var(--primary); border-color: var(--primary); color: white; font-weight: 600; }
-.opt-btn.correct-ans { background: #d1fae5; border-color: #059669; color: #065f46; font-weight: 700; cursor: not-allowed; }
-.opt-btn.wrong-ans { background: #fee2e2; border-color: #dc2626; color: #991b1b; font-weight: 700; cursor: not-allowed; }
-.opt-btn.correct-ans.not-selected { background: #d1fae5; border-color: #059669; color: #065f46; font-weight: 700; cursor: not-allowed; }
+.opt-btn.unlocked:hover .opt-radio { border-color: var(--primary); }
+.opt-btn.selected { background: #e0f2fe; border-color: var(--primary); border-width: 2px; }
+.opt-btn.selected .opt-radio { background: var(--primary); border-color: var(--primary); box-shadow: inset 0 0 0 3px #fff; }
+.opt-btn.selected .opt-letter { color: var(--primary); }
+.opt-btn.correct-ans { background: #d1fae5; border-color: #059669; border-width: 2px; color: #065f46; cursor: not-allowed; }
+.opt-btn.correct-ans .opt-radio { background: #059669; border-color: #059669; box-shadow: inset 0 0 0 3px #fff; }
+.opt-btn.correct-ans .opt-letter { color: #059669; }
+.opt-btn.wrong-ans { background: #fee2e2; border-color: #dc2626; border-width: 2px; color: #991b1b; cursor: not-allowed; }
+.opt-btn.wrong-ans .opt-radio { background: #dc2626; border-color: #dc2626; box-shadow: inset 0 0 0 3px #fff; }
+.opt-btn.wrong-ans .opt-letter { color: #dc2626; }
+.opt-btn.correct-ans.not-selected { background: #d1fae5; border-color: #059669; color: #065f46; cursor: not-allowed; }
+/* Dark theme option overrides */
+body.dark-theme .opt-btn { background: #2a2a2a; }
+body.dark-theme .opt-btn.unlocked:hover { background: #1a3045; border-color: var(--sky); }
+body.dark-theme .opt-btn.selected { background: rgba(56,189,248,0.12) !important; border-color: var(--primary) !important; }
+body.dark-theme .opt-btn.correct-ans { background: rgba(52,211,153,0.12) !important; border-color: #34d399 !important; color: #34d399 !important; }
+body.dark-theme .opt-btn.correct-ans .opt-radio { background: #34d399; border-color: #34d399; }
+body.dark-theme .opt-btn.wrong-ans { background: rgba(248,113,113,0.12) !important; border-color: #f87171 !important; color: #f87171 !important; }
+body.dark-theme .opt-btn.wrong-ans .opt-radio { background: #f87171; border-color: #f87171; }
+.opt-badge { font-size: 0.72rem; font-weight: 700; padding: 2px 8px; border-radius: 10px; margin-left: 8px; flex-shrink: 0; align-self: center; }
+.opt-badge.correct { background: #059669; color: #fff; }
+.opt-badge.wrong { background: #dc2626; color: #fff; }
+body.dark-theme .opt-badge.correct { background: #34d399; color: #022c22; }
+body.dark-theme .opt-badge.wrong { background: #f87171; color: #450a0a; }
 
 .ans-feedback {
     margin-top: 12px; padding: 12px 16px; border-radius: 10px;
@@ -208,22 +333,30 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .btn-bookmark { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24 !important; }
 .btn-bookmark.active { background: #f59e0b; color: white; border-color: #d97706 !important; }
 
-.sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 15px; border-left: 5px solid #cbd5e1; }
-.sol-box.correct { border-left-color: var(--succ); background: #ecfdf5; }
-.sol-box.wrong { border-left-color: var(--err); background: #fef2f2; }
+.sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; border-left: 5px solid #cbd5e1; }
+.sol-box.correct { border-left-color: var(--succ); background: #f0fdf4; }
+.sol-box.wrong { border-left-color: var(--err); background: #fff5f5; }
 .sol-box.skipped { border-left-color: #94a3b8; }
+/* Sol-box question text */
+.sol-box .sol-q-text { font-size: 0.95rem; font-weight: 600; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
+.sol-box .sol-q-num { font-weight: 800; color: var(--primary); margin-right: 4px; }
 
 .status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
 .tag-correct { background: #d1fae5; color: #065f46; }
 .tag-wrong { background: #fee2e2; color: #991b1b; }
 .tag-skipped { background: #f1f5f9; color: #475569; }
 
-.opt-list { margin-top: 10px; display: flex; flex-direction: column; gap: 5px; }
-.opt-row { font-size: 0.85rem; padding: 7px 12px; border-radius: 7px; border: 1px solid transparent; }
+.opt-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
+.opt-row { font-size: 0.88rem; padding: 8px 13px; border-radius: 8px; border: 1.5px solid transparent; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+.opt-row .opt-row-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #ccc; flex-shrink: 0; margin-top: 2px; }
 .opt-row.is-correct { background: #d1fae5; border-color: #6ee7b7; color: #065f46; font-weight: 600; }
+.opt-row.is-correct .opt-row-radio { background: #059669; border-color: #059669; box-shadow: inset 0 0 0 2px #fff; }
 .opt-row.is-user { background: #fee2e2; border-color: #fca5a5; color: #991b1b; font-weight: 600; }
+.opt-row.is-user .opt-row-radio { background: #dc2626; border-color: #dc2626; box-shadow: inset 0 0 0 2px #fff; }
 .opt-row.is-both { background: #d1fae5; border-color: #6ee7b7; color: #065f46; font-weight: 600; }
-.opt-row.neutral { background: #f8fafc; color: var(--muted); }
+.opt-row.is-both .opt-row-radio { background: #059669; border-color: #059669; box-shadow: inset 0 0 0 2px #fff; }
+.opt-row.neutral { background: #f8fafc; color: var(--muted); border-color: transparent; }
+.opt-row.neutral .opt-row-radio { border-color: #cbd5e1; }
 
 /* Attempts Ribbon */
 .attempts-ribbon {
@@ -37277,7 +37410,18 @@ const app = {
         if (!raw || raw.trim() === "") return [];
         return raw.trim().split(/Q\.\d+/).filter(b => b.trim()).map(block => {
             const lines = block.split('\n').map(l => l.trim()).filter(l => l);
-            let qText = "", opts = [], ans = "", exp = "";
+            let qLines = [], opts = [], ans = "", exp = "";
+
+            // Sub-statement patterns — space is OPTIONAL (handles "(I)The" and "(I) The" both)
+            const isSubStmt = l =>
+                /^\([a-z]\)\s*\S/i.test(l) ||           // (a)text or (a) text
+                /^\(I{1,4}V?\)\s*\S/i.test(l) ||        // (I)(II)(III)(IV) — roman in parens
+                /^\([ivx]+\)\s*\S/i.test(l) ||          // (i)(ii)(iii) lowercase roman in parens
+                /^\(\d+\)\s*\S/.test(l) ||              // (1)text or (1) text
+                /^[A-Z]\)\s*\S/.test(l) ||              // A)text or A) text
+                /^I{1,4}V?\)\s*\S/i.test(l) ||          // I) II) III) — roman + closing paren only
+                /^statement[\s\-]*(i+|\d+)\s*[:–\-]/i.test(l); // Statement I: text
+
             lines.forEach(l => {
                 if (l.startsWith('A.')) opts[0] = l.slice(2).trim();
                 else if (l.startsWith('B.')) opts[1] = l.slice(2).trim();
@@ -37285,8 +37429,23 @@ const app = {
                 else if (l.startsWith('D.')) opts[3] = l.slice(2).trim();
                 else if (l.startsWith('Correct Answer:')) ans = l.slice(15).trim().toUpperCase();
                 else if (l.startsWith('Exp:')) exp = l.slice(4).trim();
-                else qText += l + " ";
+                else qLines.push(l);
             });
+
+            // Build qText preserving newlines before sub-statement lines.
+            // Also: if there are multiple plain-sentence lines (no marker), treat each as its own line.
+            const nonFirstLines = qLines.slice(1);
+            const hasAnySubStmt = nonFirstLines.some(l => isSubStmt(l));
+            const allPlainSentences = !hasAnySubStmt && nonFirstLines.length > 1 && nonFirstLines.every(l => l.length > 8);
+
+            let qText = "";
+            qLines.forEach((l, idx) => {
+                if (idx === 0) qText += l;
+                else if (isSubStmt(l)) qText += '\n' + l;
+                else if (allPlainSentences) qText += '\n' + l;
+                else qText += ' ' + l;
+            });
+
             return { q: qText.trim().replace(/^[-–—]\s*/, ''), opts, correct: {'A':0,'B':1,'C':2,'D':3}[ans.charAt(0)], exp };
         });
     },
@@ -37380,70 +37539,109 @@ const app = {
     },
 
     formatQuestionText(qText) {
-        // Detect and format "Statement" type questions
-        if (/statement[\s\-]*(i|1|ii|2|iii|3|iv|4)/i.test(qText) || /consider the following statements/i.test(qText)) {
-            // Split on statement markers
-            const parts = qText.split(/(?=\bstatement[\s\-]*(i+|\d+)\s*[:–\-])/i);
-            if (parts.length > 1) {
-                const intro = parts[0];
-                const stmts = parts.slice(1);
-                const stmtHtml = stmts.map(s => {
-                    // Extract label and content
-                    const match = s.match(/^(statement[\s\-]*(?:i+|\d+)\s*[:–\-]?\s*)(.*)/is);
-                    if (match) {
-                        return `<div style="display:flex;gap:8px;align-items:flex-start;background:#f0f7ff;border-left:3px solid #38bdf8;border-radius:0 8px 8px 0;padding:7px 10px;margin-bottom:6px;">
-                            <span style="font-weight:700;color:#0284c7;white-space:nowrap;font-size:0.85rem;min-width:90px;">${match[1].trim()}</span>
-                            <span style="font-size:0.9rem;">${match[2].trim()}</span>
-                        </div>`;
-                    }
-                    return `<div style="padding:5px 0;">${s}</div>`;
-                }).join('');
-                return `<div>${intro}</div><div style="margin-top:8px;">${stmtHtml}</div>`;
-            }
+        // Split on preserved newlines to get all lines
+        const allLines = qText.split('\n').map(l => l.trim()).filter(l => l);
+
+        if (allLines.length <= 1) {
+            // Single line – no sub-statements, just return as-is
+            return qText;
         }
 
-        // Detect and format Match the Following / List I - List II
-        if (/list[\s\-]*(i|1|ii|2)/i.test(qText) || /match the following/i.test(qText)) {
-            const lines = qText.split(/\n|(?<=[a-z\)\.])(?=[A-Z\(](?!\.))/g).map(l => l.trim()).filter(Boolean);
-            const list1Items = [], list2Items = [];
-            let introText = '', inList1 = false, inList2 = false;
-            lines.forEach(line => {
-                if (/^list[\s\-]*i(?!i)/i.test(line)) { inList1 = true; inList2 = false; return; }
-                if (/^list[\s\-]*ii/i.test(line)) { inList1 = false; inList2 = true; return; }
-                if (inList1) list1Items.push(line);
-                else if (inList2) list2Items.push(line);
-                else introText += line + ' ';
-            });
+        // First line is always the intro/question stem
+        const intro = allLines[0];
+        const rest = allLines.slice(1);
 
-            if (list1Items.length && list2Items.length) {
-                const maxLen = Math.max(list1Items.length, list2Items.length);
-                let tableRows = '';
+        // Check if rest lines look like sub-statements — space is OPTIONAL
+        const isLetterStmt  = l => /^\([a-z]\)\s*\S/i.test(l);          // (a) or (a)text
+        const isRomanParens = l => /^\(I{1,4}V?\)\s*\S/i.test(l);       // (I)(II)(III)(IV)
+        const isRomanStmt   = l => /^\([ivx]+\)\s*\S/i.test(l);         // (i)(ii)(iii)
+        const isNumberStmt  = l => /^\(\d+\)\s*\S/.test(l);             // (1)(2)
+        const isCapStmt     = l => /^[A-Z]\)\s*\S/.test(l);             // A) B) C)
+        const isRomanClose  = l => /^I{1,4}V?\)\s*\S/i.test(l);         // I) II) III)
+        const isNamedStmt   = l => /^statement[\s\-]*(i+|\d+)\s*[:–\-]/i.test(l);
+        const isListI       = l => /^list[\s\-]*i(?!i)/i.test(l);
+        const isListII      = l => /^list[\s\-]*ii/i.test(l);
+
+        const isAnyStmt = l => isLetterStmt(l) || isRomanParens(l) || isRomanStmt(l) || isNumberStmt(l) || isCapStmt(l) || isRomanClose(l) || isNamedStmt(l);
+        const stmtLines = rest.filter(l => isAnyStmt(l));
+        const hasListFormat = rest.some(l => isListI(l)) && rest.some(l => isListII(l));
+        // Plain sentence list: multiple lines, none with markers — treat each as a numbered statement
+        const isPlainList = stmtLines.length === 0 && rest.length > 1 && rest.every(l => l.length > 8);
+
+        // --- Match the Following / List I – List II ---
+        if (hasListFormat || /match the following/i.test(intro)) {
+            const list1 = [], list2 = [];
+            let in1 = false, in2 = false, extraIntro = '';
+            rest.forEach(l => {
+                if (isListI(l))  { in1 = true; in2 = false; return; }
+                if (isListII(l)) { in1 = false; in2 = true; return; }
+                if (in1) list1.push(l);
+                else if (in2) list2.push(l);
+                else extraIntro += ' ' + l;
+            });
+            if (list1.length && list2.length) {
+                const maxLen = Math.max(list1.length, list2.length);
+                let rows = '';
                 for (let i = 0; i < maxLen; i++) {
-                    tableRows += `<tr>
-                        <td style="padding:6px 10px;border:1px solid #dbeafe;background:#f0f7ff;font-size:0.88rem;">${list1Items[i] || ''}</td>
-                        <td style="padding:6px 10px;border:1px solid #ede9fe;background:#faf5ff;font-size:0.88rem;">${list2Items[i] || ''}</td>
-                    </tr>`;
+                    rows += `<tr><td>${list1[i] || ''}</td><td>${list2[i] || ''}</td></tr>`;
                 }
-                return `<div style="margin-bottom:6px;">${introText.trim()}</div>
-                <table style="width:100%;border-collapse:collapse;border-radius:8px;overflow:hidden;margin-top:6px;">
-                    <thead>
-                        <tr>
-                            <th style="padding:7px 10px;background:#dbeafe;color:#1d4ed8;font-size:0.8rem;text-align:left;border:1px solid #bfdbfe;">LIST I</th>
-                            <th style="padding:7px 10px;background:#ede9fe;color:#6d28d9;font-size:0.8rem;text-align:left;border:1px solid #ddd6fe;">LIST II</th>
-                        </tr>
-                    </thead>
-                    <tbody>${tableRows}</tbody>
+                return `<div style="margin-bottom:8px;line-height:1.7;">${intro}${extraIntro}</div>
+                <table class="match-table">
+                    <thead><tr><th>LIST I</th><th>LIST II</th></tr></thead>
+                    <tbody>${rows}</tbody>
                 </table>`;
             }
         }
 
-        return qText;
+        // --- Named Statement I / Statement II ---
+        if (stmtLines.length > 0 && stmtLines.every(l => isNamedStmt(l))) {
+            const stmtHtml = stmtLines.map(s => {
+                const m = s.match(/^(statement[\s\-]*(?:i+|\d+)\s*[:–\-]?\s*)(.*)/is);
+                if (m) return `<div class="stmt-block"><span class="stmt-label">${m[1].trim()}</span><span class="stmt-text">${m[2].trim()}</span></div>`;
+                return `<div class="stmt-block"><span class="stmt-text">${s}</span></div>`;
+            }).join('');
+            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}`;
+        }
+
+        // --- (a)/(b), (i)/(ii), (1)/(2), A)/B), I)/II), (I)/(II) style ---
+        if (stmtLines.length >= 1) {
+            const stmtHtml = stmtLines.map((s, idx) => {
+                // Match label: (a), (I), A), I), (1), etc. — space optional after label
+                const m = s.match(/^(\([^)]+\)|[A-Z]\)|I{1,4}V?\))\s*(.*)/i);
+                if (m) return `<div class="stmt-block"><span class="stmt-label">${m[1]}</span><span class="stmt-text">${m[2]}</span></div>`;
+                return `<div class="stmt-block"><span class="stmt-text">${s}</span></div>`;
+            }).join('');
+            const nonStmt = rest.filter(l => !isAnyStmt(l));
+            const fullIntro = intro + (nonStmt.length ? ' ' + nonStmt.join(' ') : '');
+            return `<div style="margin-bottom:10px;line-height:1.7;">${fullIntro}</div>${stmtHtml}`;
+        }
+
+        // --- Plain sentence list (no markers, e.g. Q.1705 Rajasthan districts style) ---
+        if (isPlainList) {
+            const stmtHtml = rest.map((s, idx) =>
+                `<div class="stmt-block"><span class="stmt-label">${idx + 1}.</span><span class="stmt-text">${s}</span></div>`
+            ).join('');
+            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}`;
+        }
+
+        // --- Fallback: numbered points like 1. xxx, 2. xxx ---
+        if (rest.every(l => /^\d+\./.test(l))) {
+            const stmtHtml = rest.map(s => {
+                const m = s.match(/^(\d+\.)\s*(.*)/);
+                if (m) return `<div class="stmt-block"><span class="stmt-label">${m[1]}</span><span class="stmt-text">${m[2]}</span></div>`;
+                return `<div class="stmt-block"><span class="stmt-text">${s}</span></div>`;
+            }).join('');
+            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}`;
+        }
+
+        // Default: join as plain text
+        return allLines.join(' ');
     },
 
     renderQ() {
         const q = this.testQs[this.idx];
         const formattedQ = this.formatQuestionText(q.q);
-        document.getElementById('q-text').innerHTML = `<span style="font-weight:700;color:var(--muted);font-size:0.85rem;">Q.${this.idx + 1}:</span> ${formattedQ}`;
+        document.getElementById('q-text').innerHTML = `<span class="q-num">Q.${this.idx + 1}</span> ${formattedQ}`;
         const bmBtn = document.getElementById('q-bookmark');
         const isBookmarked = this.bookmarks.some(b => b.q === q.q);
         bmBtn.classList.toggle('active', isBookmarked);
@@ -37455,20 +37653,30 @@ const app = {
         let optsHtml = q.opts.map((o, i) => {
             if (hasAnswered) {
                 let cls = 'locked';
-                let suffix = '';
+                let badge = '';
                 if (i === q.correct && i === userAns) {
                     cls = 'correct-ans locked';
-                    suffix = ' <span style="float:right">✓ Correct!</span>';
+                    badge = '<span class="opt-badge correct">✓ Correct!</span>';
                 } else if (i === q.correct) {
                     cls = 'correct-ans locked';
-                    suffix = ' <span style="float:right">✓ Correct Answer</span>';
+                    badge = '<span class="opt-badge correct">✓ Answer</span>';
                 } else if (i === userAns) {
                     cls = 'wrong-ans locked';
-                    suffix = ' <span style="float:right">✗ Your Answer</span>';
+                    badge = '<span class="opt-badge wrong">✗ Your Ans</span>';
                 }
-                return `<button class="opt-btn ${cls}" disabled><b>${String.fromCharCode(65+i)}.</b> ${o}${suffix}</button>`;
+                return `<button class="opt-btn ${cls}" disabled>
+                    <div class="opt-radio"></div>
+                    <span class="opt-letter">${String.fromCharCode(65+i)}.</span>
+                    <span class="opt-text">${o}</span>
+                    ${badge}
+                </button>`;
             } else {
-                return `<button class="opt-btn unlocked" onclick="app.select(${i})"><b>${String.fromCharCode(65+i)}.</b> ${o}</button>`;
+                const isSel = this.userAns[this.idx] === i;
+                return `<button class="opt-btn unlocked${isSel ? ' selected' : ''}" onclick="app.select(${i})">
+                    <div class="opt-radio"></div>
+                    <span class="opt-letter">${String.fromCharCode(65+i)}.</span>
+                    <span class="opt-text">${o}</span>
+                </button>`;
             }
         }).join('');
 
@@ -37480,6 +37688,9 @@ const app = {
                 optsHtml += `<div class="ans-feedback correct">🎉 Correct! Your answer <b>(${userLetter})</b> is right.</div>`;
             } else {
                 optsHtml += `<div class="ans-feedback wrong">✗ Wrong! You chose <b>(${userLetter})</b> — Correct answer is <b>(${correctLetter}) ${q.opts[q.correct]}</b></div>`;
+            }
+            if (q.exp) {
+                optsHtml += `<div style="margin-top:10px;padding:10px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.85rem;line-height:1.6;color:#374151;"><b>💡 Explanation:</b> ${q.exp}</div>`;
             }
         }
 
@@ -37579,6 +37790,7 @@ const app = {
         const sortedEntries = [...entries].sort((a, b) => sortOrder[a.statusClass] - sortOrder[b.statusClass]);
 
         const listHtml = sortedEntries.map(({ q, i, u, statusClass, tagLabel }) => {
+            const formattedQ = this.formatQuestionText(q.q);
             const optsHtml = q.opts.map((opt, oi) => {
                 let cls = 'neutral';
                 if (oi === q.correct && u !== undefined && oi === u) cls = 'is-both';
@@ -37587,14 +37799,14 @@ const app = {
                 const label = oi === q.correct
                     ? (u !== undefined && oi === u ? '✓ Your answer (Correct)' : '✓ Correct Answer')
                     : (u !== undefined && oi === u ? '✗ Your Answer' : '');
-                const suffix = label ? ` <span style="font-size:0.7rem; opacity:0.85;">${label}</span>` : '';
-                return `<div class="opt-row ${cls}"><b>${String.fromCharCode(65+oi)}.</b> ${opt}${suffix}</div>`;
+                const badge = label ? ` <span style="font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;background:${oi===q.correct?'#059669':'#dc2626'};color:#fff;">${label}</span>` : '';
+                return `<div class="opt-row ${cls}"><div class="opt-row-radio"></div><span style="font-weight:800;margin-right:4px;flex-shrink:0;">${String.fromCharCode(65+oi)}.</span><span style="flex:1;">${opt}${badge}</span></div>`;
             }).join('');
             return `<div class="sol-box ${statusClass}">
                 <span class="status-tag tag-${statusClass}">${tagLabel}</span>
-                <p><b>Q.${i+1}</b> ${q.q}</p>
+                <div class="sol-q-text"><span class="sol-q-num">Q.${i+1}</span> ${formattedQ}</div>
                 <div class="opt-list">${optsHtml}</div>
-                ${q.exp ? `<p style="margin-top:10px; font-size:0.82rem; color:var(--muted)"><b>Exp:</b> ${q.exp}</p>` : ''}
+                ${q.exp ? `<div style="margin-top:10px;padding:10px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.82rem;line-height:1.6;color:#374151;"><b>💡 Exp:</b> ${q.exp}</div>` : ''}
             </div>`;
         }).join('');
 
