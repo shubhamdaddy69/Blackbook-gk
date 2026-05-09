@@ -6319,6 +6319,8 @@ Correct Answer: C
 Q.824 - Pancha siddhantham of Varaha mihira deals with:
 A. Medicine
 B. Astronomy
+C. Mathematics
+D. Literature
 Correct Answer: B
 
 Q.825 - Charaka is known as the father of ____.
@@ -19905,6 +19907,8 @@ Correct Answer: D
 Q.2745 "Give me blood and I will give you freedom." statement was quoted by Subhash Chandra Bose.
 A. True
 B. False
+C. Partially True
+D. Cannot be determined
 Correct Answer: A
 
 Q.2746 Who was elected as the President of the Indian National Congress in the year 1938 and 1939?
@@ -40167,7 +40171,7 @@ Correct Answer: A
 Q.2288 Which Article of the Constitution of India directs the State to take steps to separate the judiciary from the executive in the public services of the State?
 A. Article 48
 B. Article 49
-@. Article 50
+C. Article 50
 D. Article 51
 Correct Answer: C
 
@@ -40727,7 +40731,7 @@ Correct Answer: A
 Q.2368 A money bill under Article 111 of the Constitution of India, presented to the President for assent, has to be endorsed by a Certificate of the _____ signed by him/her that it is a money bill.
 A. President
 B. Prime Minister
-@. Speaker of the Lok Sabha
+C. Speaker of the Lok Sabha
 D. Finance Minister
 Correct Answer: C
 
@@ -52565,7 +52569,7 @@ Q.877 River Banas is a tributary of the _____ river.
 A. Chambal
 B. Yamuna
 C. Ganga
-B. Betwa
+D. Betwa
 Correct Answer: A
 
 Q.878 Which is a tributary of Yamuna river?
@@ -54625,6 +54629,7 @@ const app = {
         this.lastResult = { r, w, s, finalScore, rows, topic: this.activeTopic, date: new Date().toLocaleString() };
 
         document.getElementById('score-card').innerHTML = `
+            <p style="font-size:0.7rem; color:var(--muted); font-family:'Orbitron'; letter-spacing:2px; text-transform:uppercase; margin-bottom:4px;">${this.activeTopic}${this.activeSet ? ' &nbsp;|&nbsp; Set ' + this.activeSet : ''}</p>
             <h1 style="font-size:2.5rem; color:var(--primary); font-family:'Orbitron';">${finalScore.toFixed(2)}</h1>
             <p style="margin-top:10px; color:var(--text); font-size:0.95rem;">
                 <span style="display:inline-flex;align-items:center;gap:5px;background:#d1fae5;color:#065f46;border:1.5px solid #6ee7b7;border-radius:8px;padding:5px 14px;font-weight:700;font-family:'Orbitron';font-size:0.72rem;">✓ Correct: ${r}</span>
