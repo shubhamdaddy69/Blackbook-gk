@@ -333,12 +333,12 @@ body.dark-theme .opt-badge.wrong { background: #f87171; color: #450a0a; }
 .btn-bookmark { background: #fef3c7; color: #92400e; border: 2px solid #fbbf24 !important; }
 .btn-bookmark.active { background: #f59e0b; color: white; border-color: #d97706 !important; }
 
-.sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; margin-bottom: 14px; border-left: 5px solid #cbd5e1; }
+.sol-box { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px 14px; margin-bottom: 10px; border-left: 5px solid #cbd5e1; }
 .sol-box.correct { border-left-color: var(--succ); background: #f0fdf4; }
 .sol-box.wrong { border-left-color: var(--err); background: #fff5f5; }
 .sol-box.skipped { border-left-color: #94a3b8; }
 /* Sol-box question text */
-.sol-box .sol-q-text { font-size: 0.95rem; font-weight: 600; line-height: 1.7; color: var(--text); margin-bottom: 12px; }
+.sol-box .sol-q-text { font-size: 0.9rem; font-weight: 600; line-height: 1.6; color: var(--text); margin-bottom: 8px; }
 .sol-box .sol-q-num { font-weight: 800; color: var(--primary); margin-right: 4px; }
 
 .status-tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; }
@@ -346,8 +346,8 @@ body.dark-theme .opt-badge.wrong { background: #f87171; color: #450a0a; }
 .tag-wrong { background: #fee2e2; color: #991b1b; }
 .tag-skipped { background: #f1f5f9; color: #475569; }
 
-.opt-list { margin-top: 10px; display: flex; flex-direction: column; gap: 6px; }
-.opt-row { font-size: 0.88rem; padding: 8px 13px; border-radius: 8px; border: 1.5px solid transparent; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
+.opt-list { margin-top: 6px; display: flex; flex-direction: column; gap: 4px; }
+.opt-row { font-size: 0.85rem; padding: 6px 10px; border-radius: 8px; border: 1.5px solid transparent; display: flex; align-items: flex-start; gap: 8px; line-height: 1.5; }
 .opt-row .opt-row-radio { width: 16px; height: 16px; border-radius: 50%; border: 2px solid #ccc; flex-shrink: 0; margin-top: 2px; }
 .opt-row.is-correct { background: #d1fae5; border-color: #6ee7b7; color: #065f46; font-weight: 600; }
 .opt-row.is-correct .opt-row-radio { background: #059669; border-color: #059669; box-shadow: inset 0 0 0 2px #fff; }
@@ -48327,13 +48327,13 @@ const app = {
                 let badge = '';
                 if (i === q.correct && i === userAns) {
                     cls = 'correct-ans locked';
-                    badge = '<span class="opt-badge correct">✓ Correct!</span>';
+                    badge = '';
                 } else if (i === q.correct) {
                     cls = 'correct-ans locked';
-                    badge = '<span class="opt-badge correct">✓ Answer</span>';
+                    badge = '';
                 } else if (i === userAns) {
                     cls = 'wrong-ans locked';
-                    badge = '<span class="opt-badge wrong">✗ Your Ans</span>';
+                    badge = '';
                 }
                 return `<button class="opt-btn ${cls}" disabled>
                     <div class="opt-radio"></div>
@@ -48462,7 +48462,6 @@ const app = {
                 return `<div class="opt-row ${cls}"><div class="opt-row-radio"></div><span style="font-weight:800;margin-right:4px;flex-shrink:0;">${String.fromCharCode(65+oi)}.</span><span style="flex:1;">${opt}</span></div>`;
             }).join('');
             return `<div class="sol-box ${statusClass}">
-                <span class="status-tag tag-${statusClass}">${tagLabel}</span>
                 <div class="sol-q-text"><span class="sol-q-num">Q.${i+1}</span> ${formattedQ}</div>
                 <div class="opt-list">${optsHtml}</div>
                 ${q.exp ? `<div style="margin-top:10px;padding:10px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.82rem;line-height:1.6;color:#374151;"><b>💡 Exp:</b> ${q.exp}</div>` : ''}
