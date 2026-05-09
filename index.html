@@ -48792,18 +48792,17 @@ const app = {
 
                 const optsHtml = (q.opts||[]).map((opt,oi) => {
                     const isC = oi===q.correct, isU = u!==undefined && oi===u;
-                    let bg='transparent', col='#374151', fw='400', mk='';
-                    if (isC && isU) { bg='#d1fae5'; col='#065f46'; fw='700'; mk=' [CORRECT / YOUR ANS]'; }
-                    else if (isC) { bg='#d1fae5'; col='#065f46'; fw='700'; mk=' [CORRECT ANS]'; }
-                    else if (isU) { bg='#fee2e2'; col='#991b1b'; fw='700'; mk=' [YOUR ANS]'; }
-                    return '<div style="padding:4px 8px;border-radius:5px;background:' + bg + ';color:' + col + ';font-weight:' + fw + ';font-size:11px;line-height:1.5;">' + String.fromCharCode(65+oi) + '. ' + opt + mk + '</div>';
+                    let bg='transparent', col='#374151', fw='400';
+                    if (isC && isU) { bg='#d1fae5'; col='#065f46'; fw='700'; }
+                    else if (isC) { bg='#d1fae5'; col='#065f46'; fw='700'; }
+                    else if (isU) { bg='#fee2e2'; col='#991b1b'; fw='700'; }
+                    return '<div style="padding:4px 8px;border-radius:5px;background:' + bg + ';color:' + col + ';font-weight:' + fw + ';font-size:11px;line-height:1.5;">' + String.fromCharCode(65+oi) + '. ' + opt + '</div>';
                 }).join('');
 
                 html += '<div class="pav" style="background:' + sBg + ';border:1px solid #e2e8f0;border-left:4px solid ' + sBorder + ';border-radius:10px;padding:11px 14px;margin-bottom:8px;">'
                       + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">'
                       + '<div style="min-width:24px;height:24px;border-radius:50%;background:' + sBorder + ';color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (qi+1) + '</div>'
                       + '<div style="flex:1;font-size:12px;font-weight:600;line-height:1.6;color:#0f172a;">' + q.q.replace(/\n/g,'<br>') + '</div>'
-                      + '<div style="white-space:nowrap;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;background:' + sBg + ';color:' + sColor + ';border:1.5px solid ' + sBorder + ';letter-spacing:0.5px;">' + sLabel + '</div>'
                       + '</div>'
                       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding-left:34px;margin-bottom:8px;">' + optsHtml + '</div>'
                       + '<div style="display:flex;align-items:center;gap:14px;padding-left:34px;padding-top:7px;border-top:1px dashed #cbd5e1;flex-wrap:wrap;">'
@@ -48873,22 +48872,21 @@ const app = {
 
             var optsHtml = (q.opts||[]).map(function(opt,oi){
                 var isC=oi===q.correct, isU=u!==undefined&&oi===u;
-                var bg='transparent',col='#374151',fw='400',mk='';
-                if(isC&&isU){bg='#d1fae5';col='#065f46';fw='700';mk=' ✓ YOUR ANSWER';}
-                else if(isC){bg='#d1fae5';col='#065f46';fw='700';mk=' ✓ CORRECT';}
-                else if(isU){bg='#fee2e2';col='#991b1b';fw='700';mk=' ✗ YOUR ANSWER';}
-                return '<div style="padding:6px 10px;border-radius:6px;background:'+bg+';color:'+col+';font-weight:'+fw+';font-size:13px;line-height:1.5;margin-bottom:4px;">'+String.fromCharCode(65+oi)+'. '+opt+mk+'</div>';
+                var bg='transparent',col='#374151',fw='400';
+                if(isC&&isU){bg='#d1fae5';col='#065f46';fw='700';}
+                else if(isC){bg='#d1fae5';col='#065f46';fw='700';}
+                else if(isU){bg='#fee2e2';col='#991b1b';fw='700';}
+                return '<div style="padding:6px 10px;border-radius:6px;background:'+bg+';color:'+col+';font-weight:'+fw+';font-size:13px;line-height:1.5;margin-bottom:4px;">'+String.fromCharCode(65+oi)+'. '+opt+'</div>';
             }).join('');
 
-            return '<div style="background:'+sBg+';border:1px solid #e2e8f0;border-left:4px solid '+sBorder+';border-radius:12px;padding:14px 16px;margin-bottom:12px;page-break-inside:avoid;">'
-                 + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">'
+            return '<div style="background:'+sBg+';border:1px solid #e2e8f0;border-left:4px solid '+sBorder+';border-radius:12px;padding:12px 14px;margin-bottom:10px;page-break-inside:avoid;">'
+                 + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">'
                  + '<div style="min-width:26px;height:26px;border-radius:50%;background:'+sBorder+';color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(qi+1)+'</div>'
                  + '<div style="flex:1;font-size:14px;font-weight:600;line-height:1.6;color:#0f172a;">'+q.q.replace(/\n/g,'<br>')+'</div>'
-                 + '<div style="white-space:nowrap;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;background:'+sBg+';color:'+sColor+';border:1.5px solid '+sBorder+';letter-spacing:0.5px;margin-left:8px;">'+sLabel+'</div>'
                  + '</div>'
-                 + '<div style="padding-left:36px;margin-bottom:10px;">'+optsHtml+'</div>'
-                 + (u===undefined ? '<div style="display:flex;align-items:center;gap:16px;padding-left:36px;padding-top:8px;border-top:1px dashed #cbd5e1;"><span style="font-size:12px;color:#94a3b8;">Not attempted</span></div>' : '')
-                 + (q.exp ? '<div style="font-size:12px;color:#374151;background:#fffbeb;padding:8px 12px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:10px;margin-left:36px;line-height:1.6;"><b>💡 Explanation:</b> '+q.exp+'</div>' : '')
+                 + '<div style="padding-left:36px;margin-bottom:6px;">'+optsHtml+'</div>'
+                 + (u===undefined ? '<div style="display:flex;align-items:center;gap:16px;padding-left:36px;padding-top:6px;border-top:1px dashed #cbd5e1;"><span style="font-size:12px;color:#94a3b8;">Not attempted</span></div>' : '')
+                 + (q.exp ? '<div style="font-size:12px;color:#374151;background:#fffbeb;padding:8px 12px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:8px;margin-left:36px;line-height:1.6;"><b>💡 Explanation:</b> '+q.exp+'</div>' : '')
                  + '</div>';
         }).join('');
 
