@@ -186,14 +186,14 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
     display: flex;
     gap: 10px;
     align-items: flex-start;
-    background: #f0f7ff;
-    border-left: 3px solid var(--sky);
-    border-radius: 0 8px 8px 0;
-    padding: 8px 12px;
-    margin-bottom: 7px;
+    background: transparent;
+    border-left: none;
+    border-radius: 0;
+    padding: 4px 0;
+    margin-bottom: 4px;
     line-height: 1.6;
 }
-body.dark-theme .stmt-block { background: rgba(56,189,248,0.07); border-left-color: var(--sky); }
+body.dark-theme .stmt-block { background: transparent; }
 .stmt-label {
     font-weight: 800;
     color: var(--primary);
@@ -324,7 +324,7 @@ body.dark-theme .opt-badge.wrong { background: #f87171; color: #450a0a; }
 .qnav-btn.answered { border-color: var(--succ); background: #d1fae5; color: #065f46; }
 .qnav-btn.answered.current { background: var(--primary); color: white; border-color: var(--primary); }
 
-.nav-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 20px; }
+.nav-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-top: 20px; position: sticky; bottom: 10px; z-index: 100; background: var(--bg); padding: 8px 0 4px; }
 .btn { padding: 12px 8px; border-radius: 8px; cursor: pointer; font-family: 'Orbitron'; font-size: 0.72rem; font-weight: bold; border: none; text-align: center; white-space: nowrap; }
 .btn-next { background: var(--primary); color: white; }
 .btn-submit { background: var(--succ); color: white; }
@@ -48087,7 +48087,7 @@ const app = {
             // Also: if there are multiple plain-sentence lines (no marker), treat each as its own line.
             const nonFirstLines = qLines.slice(1);
             const hasAnySubStmt = nonFirstLines.some(l => isSubStmt(l));
-            const allPlainSentences = !hasAnySubStmt && nonFirstLines.length > 1 && nonFirstLines.every(l => l.length > 8);
+            const allPlainSentences = !hasAnySubStmt && nonFirstLines.length > 1 && nonFirstLines.every(l => l.length > 2);
 
             let qText = "";
             qLines.forEach((l, idx) => {
@@ -48214,10 +48214,16 @@ const app = {
         const isListII      = l => /^list[\s\-]*ii/i.test(l);
 
         const isAnyStmt = l => isLetterStmt(l) || isRomanParens(l) || isRomanStmt(l) || isNumberStmt(l) || isCapStmt(l) || isRomanClose(l) || isNamedStmt(l);
+        // Closing question lines like "Which of the following…?", "How many…?", "Select the correct…", etc.
+        const isClosingQ  = l => /^(which|how many|how much|select|choose|find|what|identify|pick|mark|given|from the above|from these|among the|of the above|of the following)/i.test(l) || l.endsWith('?');
         const stmtLines = rest.filter(l => isAnyStmt(l));
         const hasListFormat = rest.some(l => isListI(l)) && rest.some(l => isListII(l));
-        // Plain sentence list: multiple lines, none with markers — treat each as a numbered statement
-        const isPlainList = stmtLines.length === 0 && rest.length > 1 && rest.every(l => l.length > 8);
+        // Separate out any trailing closing-question line(s) from the statement body
+        const closingLines = rest.filter(l => !isAnyStmt(l) && isClosingQ(l));
+        const closingFooter = closingLines.length ? `<div style="margin-top:8px;font-weight:600;line-height:1.6;">${closingLines.join(' ')}</div>` : '';
+        // Plain sentence list: multiple lines, none are markers or closing questions
+        const bodyLines = rest.filter(l => !isAnyStmt(l) && !isClosingQ(l));
+        const isPlainList = stmtLines.length === 0 && bodyLines.length >= 2 && bodyLines.every(l => l.length > 2);
 
         // --- Match the Following / List I – List II ---
         if (hasListFormat || /match the following/i.test(intro)) {
@@ -48251,7 +48257,7 @@ const app = {
                 if (m) return `<div class="stmt-block"><span class="stmt-label">${m[1].trim()}</span><span class="stmt-text">${m[2].trim()}</span></div>`;
                 return `<div class="stmt-block"><span class="stmt-text">${s}</span></div>`;
             }).join('');
-            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}`;
+            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}${closingFooter}`;
         }
 
         // --- (a)/(b), (i)/(ii), (1)/(2), A)/B), I)/II), (I)/(II) style ---
@@ -48262,30 +48268,44 @@ const app = {
                 if (m) return `<div class="stmt-block"><span class="stmt-label">${m[1]}</span><span class="stmt-text">${m[2]}</span></div>`;
                 return `<div class="stmt-block"><span class="stmt-text">${s}</span></div>`;
             }).join('');
-            const nonStmt = rest.filter(l => !isAnyStmt(l));
+            const nonStmt = rest.filter(l => !isAnyStmt(l) && !isClosingQ(l));
             const fullIntro = intro + (nonStmt.length ? ' ' + nonStmt.join(' ') : '');
-            return `<div style="margin-bottom:10px;line-height:1.7;">${fullIntro}</div>${stmtHtml}`;
+            return `<div style="margin-bottom:10px;line-height:1.7;">${fullIntro}</div>${stmtHtml}${closingFooter}`;
         }
 
         // --- Plain sentence list (no markers, e.g. Q.1705 Rajasthan districts style) ---
         if (isPlainList) {
-            const stmtHtml = rest.map((s, idx) =>
-                `<div class="stmt-block"><span class="stmt-label">${idx + 1}.</span><span class="stmt-text">${s}</span></div>`
-            ).join('');
-            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}`;
+            // If items are short (likely embedded options), show as plain lines; otherwise number them
+            const avgLen = bodyLines.reduce((s,l) => s + l.length, 0) / bodyLines.length;
+            const stmtHtml = avgLen < 30
+                ? bodyLines.map(s => `<div class="stmt-block" style="padding-left:0;"><span class="stmt-text">${s}</span></div>`).join('')
+                : bodyLines.map((s, idx) => `<div class="stmt-block"><span class="stmt-label">${idx + 1}.</span><span class="stmt-text">${s}</span></div>`).join('');
+            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}${closingFooter}`;
         }
 
         // --- Fallback: numbered points like 1. xxx, 2. xxx ---
-        if (rest.every(l => /^\d+\./.test(l))) {
-            const stmtHtml = rest.map(s => {
+        if (rest.every(l => /^\d+\./.test(l) || isClosingQ(l))) {
+            const numbered = rest.filter(l => /^\d+\./.test(l));
+            const stmtHtml = numbered.map(s => {
                 const m = s.match(/^(\d+\.)\s*(.*)/);
                 if (m) return `<div class="stmt-block"><span class="stmt-label">${m[1]}</span><span class="stmt-text">${m[2]}</span></div>`;
                 return `<div class="stmt-block"><span class="stmt-text">${s}</span></div>`;
             }).join('');
-            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}`;
+            return `<div style="margin-bottom:10px;line-height:1.7;">${intro}</div>${stmtHtml}${closingFooter}`;
         }
 
-        // Default: join as plain text
+        // --- Single extra line (e.g. answer choices listed in question stem, one per line) ---
+        if (allLines.length === 2) {
+            return `<div style="margin-bottom:6px;line-height:1.7;">${allLines[0]}</div><div style="line-height:1.7;">${allLines[1]}</div>`;
+        }
+
+        // Default: multiple lines — show each on its own line instead of merging with spaces
+        if (allLines.length > 1) {
+            const [first, ...remaining] = allLines;
+            const restHtml = remaining.map(l => `<div style="line-height:1.7;">${l}</div>`).join('');
+            return `<div style="margin-bottom:6px;line-height:1.7;">${first}</div>${restHtml}`;
+        }
+
         return allLines.join(' ');
     },
 
@@ -48332,14 +48352,6 @@ const app = {
         }).join('');
 
         if (hasAnswered) {
-            const isCorrect = userAns === q.correct;
-            const correctLetter = String.fromCharCode(65 + q.correct);
-            const userLetter = String.fromCharCode(65 + userAns);
-            if (isCorrect) {
-                optsHtml += `<div class="ans-feedback correct">🎉 Correct! Your answer <b>(${userLetter})</b> is right.</div>`;
-            } else {
-                optsHtml += `<div class="ans-feedback wrong">✗ Wrong! You chose <b>(${userLetter})</b> — Correct answer is <b>(${correctLetter}) ${q.opts[q.correct]}</b></div>`;
-            }
             if (q.exp) {
                 optsHtml += `<div style="margin-top:10px;padding:10px 14px;background:#fffbeb;border-left:3px solid #f59e0b;border-radius:0 8px 8px 0;font-size:0.85rem;line-height:1.6;color:#374151;"><b>💡 Explanation:</b> ${q.exp}</div>`;
             }
@@ -48447,11 +48459,7 @@ const app = {
                 if (oi === q.correct && u !== undefined && oi === u) cls = 'is-both';
                 else if (oi === q.correct) cls = 'is-correct';
                 else if (u !== undefined && oi === u) cls = 'is-user';
-                const label = oi === q.correct
-                    ? (u !== undefined && oi === u ? '✓ Your answer (Correct)' : '✓ Correct Answer')
-                    : (u !== undefined && oi === u ? '✗ Your Answer' : '');
-                const badge = label ? ` <span style="font-size:0.7rem;font-weight:700;padding:2px 7px;border-radius:10px;margin-left:6px;background:${oi===q.correct?'#059669':'#dc2626'};color:#fff;">${label}</span>` : '';
-                return `<div class="opt-row ${cls}"><div class="opt-row-radio"></div><span style="font-weight:800;margin-right:4px;flex-shrink:0;">${String.fromCharCode(65+oi)}.</span><span style="flex:1;">${opt}${badge}</span></div>`;
+                return `<div class="opt-row ${cls}"><div class="opt-row-radio"></div><span style="font-weight:800;margin-right:4px;flex-shrink:0;">${String.fromCharCode(65+oi)}.</span><span style="flex:1;">${opt}</span></div>`;
             }).join('');
             return `<div class="sol-box ${statusClass}">
                 <span class="status-tag tag-${statusClass}">${tagLabel}</span>
@@ -48522,7 +48530,7 @@ const app = {
                 <div class="print-q-block" style="page-break-inside:avoid;break-inside:avoid;border:1px solid #999;border-top:none;padding:6px 10px;${idx===0?'border-top:1px solid #999;':''}">
                     <div style="display:flex;align-items:flex-start;gap:8px;margin-bottom:8px;">
                         <span style="font-size:12px;font-weight:900;color:#000;white-space:nowrap;min-width:28px;">Q.${i+1}</span>
-                        <span style="font-size:13.5px;font-weight:600;line-height:1.5;color:#000;flex:1;">${q.q}</span>
+                        <span style="font-size:13.5px;font-weight:600;line-height:1.5;color:#000;flex:1;">${this.formatQuestionText(q.q)}</span>
                         <span style="white-space:nowrap;font-size:10px;font-weight:700;border:1px solid ${borderColor};padding:1px 7px;background:${tagBg};color:${tagColor};">${tagLabel.toUpperCase()}</span>
                     </div>
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 20px;margin:0 0 8px 36px;font-size:13px;">
@@ -48795,7 +48803,7 @@ const app = {
                 html += '<div class="pav" style="background:' + sBg + ';border:1px solid #e2e8f0;border-left:4px solid ' + sBorder + ';border-radius:10px;padding:11px 14px;margin-bottom:8px;">'
                       + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:8px;">'
                       + '<div style="min-width:24px;height:24px;border-radius:50%;background:' + sBorder + ';color:#fff;font-size:10px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">' + (qi+1) + '</div>'
-                      + '<div style="flex:1;font-size:12px;font-weight:600;line-height:1.6;color:#0f172a;">' + q.q + '</div>'
+                      + '<div style="flex:1;font-size:12px;font-weight:600;line-height:1.6;color:#0f172a;">' + q.q.replace(/\n/g,'<br>') + '</div>'
                       + '<div style="white-space:nowrap;font-size:9px;font-weight:800;padding:3px 9px;border-radius:20px;background:' + sBg + ';color:' + sColor + ';border:1.5px solid ' + sBorder + ';letter-spacing:0.5px;">' + sLabel + '</div>'
                       + '</div>'
                       + '<div style="display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;padding-left:34px;margin-bottom:8px;">' + optsHtml + '</div>'
@@ -48876,15 +48884,11 @@ const app = {
             return '<div style="background:'+sBg+';border:1px solid #e2e8f0;border-left:4px solid '+sBorder+';border-radius:12px;padding:14px 16px;margin-bottom:12px;page-break-inside:avoid;">'
                  + '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">'
                  + '<div style="min-width:26px;height:26px;border-radius:50%;background:'+sBorder+';color:#fff;font-size:11px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">'+(qi+1)+'</div>'
-                 + '<div style="flex:1;font-size:14px;font-weight:600;line-height:1.6;color:#0f172a;">'+q.q+'</div>'
+                 + '<div style="flex:1;font-size:14px;font-weight:600;line-height:1.6;color:#0f172a;">'+q.q.replace(/\n/g,'<br>')+'</div>'
                  + '<div style="white-space:nowrap;font-size:10px;font-weight:800;padding:4px 10px;border-radius:20px;background:'+sBg+';color:'+sColor+';border:1.5px solid '+sBorder+';letter-spacing:0.5px;margin-left:8px;">'+sLabel+'</div>'
                  + '</div>'
                  + '<div style="padding-left:36px;margin-bottom:10px;">'+optsHtml+'</div>'
-                 + '<div style="display:flex;align-items:center;gap:16px;padding-left:36px;padding-top:8px;border-top:1px dashed #cbd5e1;flex-wrap:wrap;">'
-                 + '<span style="font-size:12px;font-weight:700;color:#059669;">✓ Correct: '+String.fromCharCode(65+q.correct)+'</span>'
-                 + (u!==undefined&&u!==q.correct ? '<span style="font-size:12px;font-weight:700;color:#dc2626;">✗ Your Ans: '+String.fromCharCode(65+u)+'</span>' : '')
-                 + (u===undefined ? '<span style="font-size:12px;color:#94a3b8;">Not attempted</span>' : '')
-                 + '</div>'
+                 + (u===undefined ? '<div style="display:flex;align-items:center;gap:16px;padding-left:36px;padding-top:8px;border-top:1px dashed #cbd5e1;"><span style="font-size:12px;color:#94a3b8;">Not attempted</span></div>' : '')
                  + (q.exp ? '<div style="font-size:12px;color:#374151;background:#fffbeb;padding:8px 12px;border-left:3px solid #f59e0b;border-radius:0 6px 6px 0;margin-top:10px;margin-left:36px;line-height:1.6;"><b>💡 Explanation:</b> '+q.exp+'</div>' : '')
                  + '</div>';
         }).join('');
