@@ -54026,7 +54026,7 @@ const app = {
             mixTopics.forEach((t, idx) => {
                 const qs = this.parse(this.db[t] || '');
                 if (qs.length === 0) return;
-                const shuffled = this.seededShuffle(qs, seeds[t]);
+                const shuffled = this.applyAnswerDistribution(this.seededShuffle(qs, seeds[t]), seeds[t]);
                 shuffled.forEach(q => { q._topic = t; });
 
                 const [bg, text, accent] = cardColors[idx % cardColors.length];
@@ -54052,7 +54052,9 @@ const app = {
             this.switchScreen('screen-sets');
             return;
         } else {
-            this.allQs = this.parse(this.db[topic] || "");
+            // Deterministic seed from topic name
+        const _tSeed = [...topic].reduce((h, c) => (Math.imul(h, 31) + c.charCodeAt(0)) >>> 0, 0x9e3779b9);
+        this.allQs = this.applyAnswerDistribution(this.parse(this.db[topic] || ""), _tSeed);
         }
         document.getElementById('active-topic-title').innerText = topic.toUpperCase();
         this.renderSets();
@@ -54101,6 +54103,104 @@ const app = {
 
             return { q: qText.trim().replace(/^[-–—]\s*/, ''), opts, correct: {'A':0,'B':1,'C':2,'D':3}[ans.charAt(0)], exp };
         });
+    },
+
+
+    // ── Answer-Distribution Shuffler ──────────────────────────────────────────
+    // Rotates each question's options so that every set of 50 has exactly
+    // A=13, B=13, C=13, D=11 correct answers with zero consecutive repeats.
+    // Works for ALL topics automatically — no manual preprocessing needed.
+    applyAnswerDistribution(qs, topicSeed) {
+        const SET_SIZE = 50;
+        const DIST = [13, 13, 13, 11]; // A, B, C, D targets per set
+
+        // Seeded LCG random number generator (deterministic per topic+set)
+        function makeLCG(seed) {
+            let s = seed >>> 0;
+            return function () {
+                s = (Math.imul(s, 1664525) + 1013904223) >>> 0;
+                return s / 4294967296;
+            };
+        }
+
+        // Generate a no-consecutive-repeat sequence of [0,1,2,3] with given counts
+        function makeSequence(dist, rng) {
+            const total = dist.reduce((a, b) => a + b, 0);
+            let remaining = dist.slice();
+
+            for (let attempt = 0; attempt < 20000; attempt++) {
+                const seq = [];
+                const rem = remaining.slice();
+                let last = -1;
+                let ok = true;
+
+                for (let i = 0; i < total; i++) {
+                    // Candidates: non-zero count AND not same as last
+                    const cands = [];
+                    const weights = [];
+                    for (let k = 0; k < 4; k++) {
+                        if (rem[k] > 0 && k !== last) {
+                            cands.push(k);
+                            weights.push(rem[k]);
+                        }
+                    }
+                    if (cands.length === 0) { ok = false; break; }
+                    // Weighted random pick
+                    const total_w = weights.reduce((a, b) => a + b, 0);
+                    let r = rng() * total_w;
+                    let chosen = cands[cands.length - 1];
+                    for (let ci = 0; ci < cands.length; ci++) {
+                        r -= weights[ci];
+                        if (r <= 0) { chosen = cands[ci]; break; }
+                    }
+                    seq.push(chosen);
+                    rem[chosen]--;
+                    last = chosen;
+                }
+                if (ok) return seq;
+            }
+            // Fallback: just cycle A,B,C,D (should never reach here)
+            const fallback = [];
+            for (let k = 0; k < 4; k++) for (let j = 0; j < dist[k]; j++) fallback.push(k);
+            return fallback;
+        }
+
+        const result = [];
+        const numSets = Math.floor(qs.length / SET_SIZE);
+
+        for (let s = 0; s < numSets; s++) {
+            const rng = makeLCG(topicSeed + s * 997);
+            const seq = makeSequence(DIST, rng);
+
+            for (let qi = 0; qi < SET_SIZE; qi++) {
+                const q = qs[s * SET_SIZE + qi];
+                const target = seq[qi];            // desired correct-answer index (0-3)
+                const current = q.correct;         // current correct-answer index (0-3)
+
+                if (current === null || current === undefined || current < 0 || current > 3) {
+                    // Malformed question — keep as-is
+                    result.push(q);
+                    continue;
+                }
+
+                const shift = (target - current + 4) % 4;
+                if (shift === 0) {
+                    result.push(q);
+                    continue;
+                }
+
+                // Rotate opts array: new[i] = old[(i - shift + 4) % 4]
+                const newOpts = [0, 1, 2, 3].map(i => q.opts[(i - shift + 4) % 4]);
+                result.push({ ...q, opts: newOpts, correct: target });
+            }
+        }
+
+        // Append any remainder questions (last partial set) unchanged
+        for (let i = numSets * SET_SIZE; i < qs.length; i++) {
+            result.push(qs[i]);
+        }
+
+        return result;
     },
 
     renderSets() {
