@@ -34,7 +34,7 @@
     body.dark-theme .topic-card {
         background: linear-gradient(145deg, #1e1e1e, #111) !important;
         border-color: #2a2a2a !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.35) !important;
     }
     body.dark-theme .topic-card:hover {
         background: linear-gradient(145deg, #252525, #1a2535) !important;
@@ -136,32 +136,45 @@ body { background: var(--bg); color: var(--text); font-family: 'Inter', sans-ser
 .tab-btn { padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); color: var(--primary); cursor: pointer; font-family: 'Orbitron'; font-size: 0.7rem; transition: 0.2s; font-weight: bold; }
 .tab-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
 
-.topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; }
+/* ── Home topic grid ── */
+.topic-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px; }
 .topic-card {
-    background: linear-gradient(145deg, #ffffff, #f0f7ff);
-    border: 2px solid var(--border); border-radius: 16px; padding: 32px 25px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 18px 12px 14px;
     text-align: center; cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-    box-shadow: 0 4px 12px rgba(2, 132, 199, 0.08);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    box-shadow: 0 2px 8px rgba(2,132,199,0.07);
     position: relative; overflow: hidden;
 }
-.topic-card::before {
-    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px;
-    background: linear-gradient(90deg, var(--primary), var(--sky));
-    opacity: 0; transition: opacity 0.2s ease;
+.topic-card::after {
+    content: ''; position: absolute; inset: 0;
+    background: linear-gradient(135deg, rgba(56,189,248,0.06), transparent);
+    opacity: 0; transition: opacity 0.18s ease; border-radius: 20px;
 }
-.topic-card:hover {
-    transform: translateY(-6px) scale(1.02);
-    border-color: var(--sky);
-    background: linear-gradient(145deg, #ffffff, #e0f2fe);
-    box-shadow: 0 12px 28px rgba(2, 132, 199, 0.18);
+.topic-card:hover { transform: translateY(-4px) scale(1.03); border-color: var(--sky); box-shadow: 0 8px 20px rgba(2,132,199,0.15); }
+.topic-card:hover::after { opacity: 1; }
+.topic-card:active { transform: scale(0.97); }
+.topic-card.set-card:hover { transform: translateY(-5px) scale(1.04); box-shadow: 0 12px 24px rgba(0,0,0,0.13); }
+.topic-card h3 { color: var(--primary); font-size: 0.72rem; font-weight: 700; line-height: 1.35; letter-spacing: 0.3px; }
+.topic-card .card-icon { font-size: 1.6rem; margin-bottom: 7px; display: block; }
+.topic-card .card-meta { font-size: 0.6rem; color: var(--muted); margin-top: 5px; line-height: 1.4; }
+
+/* ── Chapter cards grid ── */
+#chapters-container {
+    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+    gap: 10px;
 }
-.topic-card:hover::before { opacity: 1; }
-.topic-card:active { transform: translateY(-2px) scale(0.99); }
-.topic-card.set-card:hover { transform: translateY(-7px) scale(1.03); box-shadow: 0 16px 32px rgba(0,0,0,0.13); }
-.topic-card h3 { color: var(--primary); font-size: 1rem; font-weight: 700; line-height: 1.4; }
-.topic-card .card-icon { font-size: 2rem; margin-bottom: 10px; display: block; }
-.topic-card .card-meta { font-size: 0.7rem; color: var(--muted); margin-top: 8px; }
+#chapters-container .topic-card {
+    border-radius: 16px;
+    padding: 14px 10px 12px;
+    border-width: 1.5px;
+}
+#chapters-container .topic-card h3 {
+    font-size: 0.63rem;
+    letter-spacing: 0.2px;
+}
 
 .q-card { background: var(--card); border: 2px solid var(--border); border-radius: 14px; padding: 22px 22px 18px; margin-bottom: 12px; position: relative; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
 .bookmark-btn { position: absolute; right: 20px; top: 20px; font-size: 1.5rem; cursor: pointer; color: #cbd5e1; transition: 0.2s; }
@@ -427,23 +440,23 @@ body.dark-theme #confirm-box { background: var(--surface); }
 body.dark-theme #confirm-no { background: var(--surface); border-color: var(--border); color: var(--text); }
 
 #sets-container {
-    grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-    gap: 12px;
+    grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+    gap: 10px;
 }
 #sets-container .topic-card {
-    padding: 14px 12px;
-    border-radius: 12px;
+    padding: 12px 10px;
+    border-radius: 14px;
 }
 #sets-container .topic-card .card-icon {
-    font-size: 1.2rem;
-    margin-bottom: 5px;
+    font-size: 1.1rem;
+    margin-bottom: 4px;
 }
 #sets-container .topic-card h3 {
-    font-size: 0.78rem;
+    font-size: 0.68rem;
 }
 #sets-container .topic-card .card-meta {
-    font-size: 0.6rem;
-    margin-top: 4px;
+    font-size: 0.58rem;
+    margin-top: 3px;
 }
 
 </style>
@@ -490,8 +503,14 @@ body.dark-theme #confirm-no { background: var(--surface); border-color: var(--bo
     <div class="topic-grid" id="home-container"></div>
 </div>
 
-<div class="screen" id="screen-sets">
+<div class="screen" id="screen-chapters">
     <button class="btn btn-back" style="margin-bottom:15px;" onclick="app.showHome()">← BACK</button>
+    <h2 id="active-subject-title" style="font-family:'Orbitron'; font-size:1rem; color:var(--primary); margin-bottom:15px;"></h2>
+    <div class="topic-grid" id="chapters-container"></div>
+</div>
+
+<div class="screen" id="screen-sets">
+    <button class="btn btn-back" style="margin-bottom:15px;" onclick="app.backFromSets()">← BACK</button>
     <h2 id="active-topic-title" style="font-family:'Orbitron'; font-size:1rem; color:var(--primary); margin-bottom:15px;"></h2>
     <div class="topic-grid" id="sets-container"></div>
 </div>
@@ -540,8 +559,8 @@ body.dark-theme #confirm-no { background: var(--surface); border-color: var(--bo
 
 <script>
 const MASTER_DATA = {
-    "Ancient History": `
-Q.1 - Palaeolithic Age in India has how many phases?
+    "Ancient History": {
+        "1. Prehistory": `Q.1 - Palaeolithic Age in India has how many phases?
 A. Five
 B. Two
 C. Three
@@ -714,7 +733,23 @@ A. Only I (Painted Grey Ware)
 B. Neither I nor II
 C. Only II (Northern Black Polished Ware)
 D. Both I and II
-Correct Answer: D
+Correct Answer: D`,
+        "2. Indus Valley Civilization": ``,
+        "3. Vedic Period": ``,
+        "4. Buddhism & Jainism": ``,
+        "5. Mahajanpadas": ``,
+        "6. Magadha Empire": ``,
+        "7. Mauryan Empire": ``,
+        "8. Later Mauryan Period": ``,
+        "9. Sangam Period": ``,
+        "10. Gupta Empire": ``,
+        "11. Vardhan Dynasty": ``,
+        "12. Southern Kingdom": ``,
+        "13. Age of 3 Empires": ``,
+        "14. Miscellaneous": ``
+    },
+    "_AH_FLAT": `
+
 
 Q.27 - ___ was one of the discoverers of Indus Valley Civilization.
 A. John Marshall
@@ -7674,7 +7709,20 @@ D. beat the drum
 Correct Answer: A
 
 ` ,
-    "Medieval History": `
+    "Medieval History": {
+        "1. Arab Invasion": ``,
+        "2. Other Important Rulers": ``,
+        "3. Delhi Sultanate (1206AD-1526AD)": ``,
+        "4. Mughal Empire (1526AD-1857AD)": ``,
+        "5. Powerful Kingdoms: Rajputs": ``,
+        "6. Powerful Kingdoms: Sikhs": ``,
+        "7. Powerful Kingdoms: Marathas": ``,
+        "8. Powerful Kingdoms: Vijayanagara": ``,
+        "9. Powerful Kingdoms: Bahmani": ``,
+        "10. Bhakti & Sufi Period": ``,
+        "11. Miscellaneous": ``
+    },
+    "_MH_FLAT": `
 
 Q.1017 Who had invaded India in 712 AD?
 A. Mahmud Ghazni
@@ -14062,7 +14110,24 @@ D. Suraj Mal
 Correct Answer: D
 `,
     
-    "Modern History": `Q.1926 Vasco da Gama, a Portuguese explorer, discovered the sea route to India in ____.
+    "Modern History": {
+        "1. Advent of Europeans": ``,
+        "2. Expansion of British Power": ``,
+        "3. GGB, GGI & Viceroys": ``,
+        "4. Socio Religious Reforms": ``,
+        "5. Civil & Tribal Uprising": ``,
+        "6. The Revolt of 1857": ``,
+        "7. The Revolutionaries": ``,
+        "8. INC & its Sessions": ``,
+        "9. Muslim League": ``,
+        "10. A Few More Associations": ``,
+        "11. Prominent Leaders/Personalities": ``,
+        "12. Struggle for Independence": ``,
+        "13. British Acts & Policies": ``,
+        "14. Constituent Assembly & Independence": ``,
+        "15. Miscellaneous": ``
+    },
+    "_MOD_FLAT": `Q.1926 Vasco da Gama, a Portuguese explorer, discovered the sea route to India in ____.
 A. 1492
 B. 1488
 C. 1502
@@ -24252,7 +24317,19 @@ Correct Answer: B
     
     "World History": ``, 
     
-    "Polity": `Q.1  The Indian Constitution declares India as:
+    "Polity": {
+        "1. Introduction to the Constitution": ``,
+        "2. Features of Indian Constitution": ``,
+        "3. Union of India": ``,
+        "4. States": ``,
+        "5. Judiciary In India": ``,
+        "6. Constitutional & Non-Constitutional Bodies": ``,
+        "7. Centre-State Relation": ``,
+        "8. Important Articles, Amendments, Schedules, Parts, IPC...": ``,
+        "9. Emergency Provisions": ``,
+        "10. Miscellaneous": ``
+    },
+    "_POL_FLAT": `Q.1  The Indian Constitution declares India as:
 A. Confederation of States
 B. Union of States
 C. Federation of States
@@ -46177,7 +46254,21 @@ Correct Answer: C
 
 `, 
     
-    "Indian Geography": `Q.1 Which State in India has the largest/longest coastline?
+    "Indian Geography": {
+        "1. Basic Geography": ``,
+        "2. Physiographic Division of India": ``,
+        "3. Drainage System": ``,
+        "4. Climate": ``,
+        "5. Soil & Agriculture": ``,
+        "6. Mineral Resources": ``,
+        "7. Transportation": ``,
+        "8. Human Geography": ``,
+        "9. Trade & Industries": ``,
+        "10. States & UT's": ``,
+        "11. Disasters": ``,
+        "12. Miscellaneous": ``
+    },
+    "_GEO_FLAT": `Q.1 Which State in India has the largest/longest coastline?
 A. Andhra Pradesh
 B. Gujarat
 C. Tamil Nadu
@@ -58754,16 +58845,32 @@ const app = {
         };
         if (type === 'topics') {
             Object.keys(this.db).forEach(t => {
+                if (t.startsWith('_')) return; // skip internal flat-data keys
                 const card = document.createElement('div');
                 card.className = 'topic-card';
                 const icon = topicIcons[t] || '📚';
                 let qCount;
                 if (t === 'Mix Mock') {
-                    qCount = Object.keys(this.db).filter(k => k !== 'Mix Mock').reduce((sum, k) => sum + this.parse(this.db[k] || '').length, 0);
-                    const topicCount = Object.keys(this.db).filter(k => k !== 'Mix Mock' && this.parse(this.db[k] || '').length > 0).length;
+                    qCount = Object.keys(this.db).filter(k => k !== 'Mix Mock' && !k.startsWith('_')).reduce((sum, k) => {
+                        const val = this.db[k];
+                        if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                            // Chapter subject - count from flat key
+                            const flatKey = this._flatKey[k];
+                            return sum + (flatKey ? this.parse(this.db[flatKey] || '').length : 0);
+                        }
+                        return sum + this.parse(val || '').length;
+                    }, 0);
+                    const topicCount = Object.keys(this.db).filter(k => k !== 'Mix Mock' && !k.startsWith('_')).length;
                     card.innerHTML = `<span class="card-icon">🎯</span><h3>${t.toUpperCase()}</h3><p class="card-meta">${topicCount} Topics · ${qCount} Questions</p>`;
                 } else {
-                    qCount = this.parse(this.db[t] || '').length;
+                    const val = this.db[t];
+                    if (typeof val === 'object' && val !== null && !Array.isArray(val)) {
+                        // Chapter subject — count from flat key
+                        const flatKey = this._flatKey[t];
+                        qCount = flatKey ? this.parse(this.db[flatKey] || '').length : 0;
+                    } else {
+                        qCount = this.parse(val || '').length;
+                    }
                     const sets = Math.ceil(qCount / 50);
                     card.innerHTML = `<span class="card-icon">${icon}</span><h3>${t.toUpperCase()}</h3><p class="card-meta">${qCount} Questions · ${sets} Set${sets !== 1 ? 's' : ''}</p>`;
                 }
@@ -58837,11 +58944,91 @@ const app = {
         return seeds;
     },
 
+    // Subjects that have chapter structure
+    _chapterSubjects: ['Ancient History', 'Medieval History', 'Modern History', 'Polity', 'Indian Geography'],
+    // Map subject name → flat data key
+    _flatKey: {
+        'Ancient History': '_AH_FLAT',
+        'Medieval History': '_MH_FLAT',
+        'Modern History': '_MOD_FLAT',
+        'Polity': '_POL_FLAT',
+        'Indian Geography': '_GEO_FLAT'
+    },
+    _activeSubject: '',
+
+    backFromSets() {
+        if (this._activeSubject) {
+            this.loadChapters(this._activeSubject);
+        } else {
+            this.showHome();
+        }
+    },
+
+    loadChapters(subject) {
+        this._activeSubject = subject;
+        document.getElementById('active-subject-title').innerText = subject.toUpperCase();
+        const cont = document.getElementById('chapters-container');
+        cont.innerHTML = '';
+
+        const chapterIcons = ['🪨','🏛️','📜','☸️','⚔️','🏰','🦁','🕊️','🎶','👑','🕌','🌴','🌐','📚',
+                              '🕌','⚔️','🏯','👑','🏰','🏰','🕌','🔥','📖',
+                              '🚢','🗺️','👔','📿','🏹','🔫','🎙️','🏛️','🧑‍⚖️','📜','🗳️','📚'];
+        const chData = this.db[subject];
+        const chapters = Object.keys(chData);
+        const colors = [
+            ['#dbeafe','#1d4ed8','#bfdbfe'],['#ede9fe','#6d28d9','#ddd6fe'],
+            ['#d1fae5','#065f46','#a7f3d0'],['#fef3c7','#92400e','#fde68a'],
+            ['#fee2e2','#991b1b','#fecaca'],['#e0f2fe','#0369a1','#bae6fd'],
+            ['#fce7f3','#9d174d','#fbcfe8'],['#f0fdf4','#166534','#bbf7d0'],
+            ['#fff7ed','#9a3412','#fed7aa'],['#f0f9ff','#075985','#bae6fd'],
+            ['#fdf4ff','#7e22ce','#e9d5ff'],['#ecfdf5','#064e3b','#6ee7b7'],
+            ['#fffbeb','#78350f','#fde68a'],['#fef2f2','#7f1d1d','#fecaca'],
+            ['#f0fdfa','#134e4a','#99f6e4']
+        ];
+
+        chapters.forEach((chName, idx) => {
+            const raw = chData[chName];
+            const qs = this.parse(raw || '');
+            const sets = qs.length ? Math.ceil(qs.length / 50) : 0;
+            const [bg, text, accent] = colors[idx % colors.length];
+            const icon = chapterIcons[idx] || '📚';
+            const card = document.createElement('div');
+            card.className = 'topic-card set-card';
+            card.style.cssText = `background:linear-gradient(145deg,#ffffff,${bg}); border-color:${accent};`;
+            card.innerHTML = `
+                <span style="font-size:1.5rem; display:block; margin-bottom:6px;">${icon}</span>
+                <h3 style="color:${text}; font-size:0.63rem; line-height:1.35;">${chName.toUpperCase()}</h3>
+                <p class="card-meta" style="font-size:0.58rem; margin-top:4px;">${qs.length > 0 ? qs.length + ' Qs · ' + sets + ' Set' + (sets !== 1 ? 's' : '') : 'Coming Soon'}</p>
+                ${qs.length > 0 ? `<div style="margin-top:8px;background:${accent};border-radius:20px;padding:3px 10px;display:inline-block;"><span style="font-size:0.58rem;font-weight:700;color:${text};font-family:'Orbitron';">▶ START</span></div>` : `<div style="margin-top:8px;background:#e2e8f0;border-radius:20px;padding:3px 10px;display:inline-block;"><span style="font-size:0.58rem;font-weight:700;color:#94a3b8;font-family:'Orbitron';">EMPTY</span></div>`}
+            `;
+            if (qs.length > 0) {
+                card.onclick = () => {
+                    const _tSeed = [...chName].reduce((h,c) => (Math.imul(h,31)+c.charCodeAt(0))>>>0, 0x9e3779b9);
+                    this.allQs = this.applyAnswerDistribution(qs, _tSeed);
+                    this.activeTopic = subject + ' › ' + chName;
+                    document.getElementById('active-topic-title').innerText = (subject + ' › ' + chName).toUpperCase();
+                    this.renderSets();
+                    this.switchScreen('screen-sets');
+                };
+            }
+            cont.appendChild(card);
+        });
+
+        this.switchScreen('screen-chapters');
+    },
+
     loadTopic(topic) {
         this.activeTopic = topic;
+        // If this is a chapter-based subject, show chapter screen
+        if (this._chapterSubjects.includes(topic)) {
+            this._activeSubject = topic;
+            this.loadChapters(topic);
+            return;
+        }
+        this._activeSubject = '';
         if (topic === 'Mix Mock') {
             const seeds = this.getMixMockSeeds();
-            const mixTopics = Object.keys(this.db).filter(k => k !== 'Mix Mock');
+            const mixTopics = Object.keys(this.db).filter(k => k !== 'Mix Mock' && !k.startsWith('_'));
             const cont = document.getElementById('sets-container');
             document.getElementById('active-topic-title').innerText = 'MIX MOCK';
             cont.innerHTML = '';
@@ -58868,7 +59055,9 @@ const app = {
             ];
 
             mixTopics.forEach((t, idx) => {
-                const qs = this.parse(this.db[t] || '');
+                const flatKey = this._flatKey[t];
+                const rawData = flatKey ? (this.db[flatKey] || '') : (this.db[t] || '');
+                const qs = this.parse(rawData);
                 if (qs.length === 0) return;
                 const shuffled = this.applyAnswerDistribution(this.seededShuffle(qs, seeds[t]), seeds[t]);
                 shuffled.forEach(q => { q._topic = t; });
@@ -58880,11 +59069,11 @@ const app = {
                 card.className = 'topic-card set-card';
                 card.style.cssText = `background:linear-gradient(145deg,#ffffff,${bg}); border-color:${accent};`;
                 card.innerHTML = `
-                    <span style="font-size:2rem; display:block; margin-bottom:8px;">${icon}</span>
-                    <h3 style="color:${text}; font-size:0.9rem;">${t.toUpperCase()}</h3>
-                    <p class="card-meta">${shuffled.length} Questions · ${sets} Set${sets !== 1 ? 's' : ''}</p>
-                    <div style="margin-top:12px;background:${accent};border-radius:6px;padding:5px 10px;display:inline-block;">
-                        <span style="font-size:0.65rem;font-weight:700;color:${text};font-family:'Orbitron';">START ▶</span>
+                    <span style="font-size:1.5rem; display:block; margin-bottom:6px;">${icon}</span>
+                    <h3 style="color:${text}; font-size:0.7rem;">${t.toUpperCase()}</h3>
+                    <p class="card-meta" style="font-size:0.58rem;">${shuffled.length} Qs · ${sets} Set${sets !== 1 ? 's' : ''}</p>
+                    <div style="margin-top:8px;background:${accent};border-radius:20px;padding:3px 10px;display:inline-block;">
+                        <span style="font-size:0.58rem;font-weight:700;color:${text};font-family:'Orbitron';">▶ START</span>
                     </div>`;
                 card.onclick = () => {
                     this.allQs = shuffled;
